@@ -2,7 +2,7 @@ package tech.mihmandar.core.trainings.tutorial.domain;
 
 import org.hibernate.envers.Audited;
 import tech.mihmandar.core.common.entity.BaseEntity;
-import tech.mihmandar.core.trainings.tutorial.enums.TutAccountType;
+import tech.mihmandar.core.trainings.tutorial.enums.EnumTutAccountType;
 
 import javax.persistence.*;
 
@@ -11,12 +11,12 @@ import javax.persistence.*;
  */
 @Entity
 @Audited
-@Table(name = "HIM_FIS")
-public class TutSubsciber extends BaseEntity{
+@Table(name = "TUT_SUBSCRIBER")
+public class TutSubscriber extends BaseEntity{
 
     private static final long serialVersionUID = 1L;
 
-    @SequenceGenerator(name = "generator", sequenceName = "HIM_FIS_ID_SEQ")
+    @SequenceGenerator(name = "generator", sequenceName = "TUT_SUBSCRIBER_ID_SEQ")
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "generator")
     @Column
@@ -36,7 +36,7 @@ public class TutSubsciber extends BaseEntity{
 
     @Enumerated(EnumType.STRING)
     @Column(name = "ACCOUNT_TYPE", length = 30)
-    private TutAccountType accountType;
+    private EnumTutAccountType accountType;
 
     public Long getId() {
         return id;
@@ -78,11 +78,11 @@ public class TutSubsciber extends BaseEntity{
         this.password = password;
     }
 
-    public TutAccountType getAccountType() {
+    public EnumTutAccountType getAccountType() {
         return accountType;
     }
 
-    public void setAccountType(TutAccountType accountType) {
+    public void setAccountType(EnumTutAccountType accountType) {
         this.accountType = accountType;
     }
 
