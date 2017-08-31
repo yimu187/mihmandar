@@ -1,0 +1,25 @@
+@import "../valo/valo.scss";
+
+//@mixin mytheme {
+//  @include valo;
+//  @include dashboard-login-view
+//}
+
+.mytheme {
+  // Output the actual theme selectors
+  @include valo;
+
+  .dimGrey{
+    background-color:#696969;
+  }
+
+  .blueViolet{
+    background-color:#8A2BE2;
+  }
+
+  .indianRed{
+    background-color:#CD5C5C;
+  }
+}
+
+

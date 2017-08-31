@@ -1,0 +1,18 @@
+//@import "../valo/valo.scss";
+//@import "login";
+@import "addons.scss";
+@import "dashboard";
+
+//@mixin mytheme {
+//  @include valo;
+//  @include dashboard-login-view
+//}
+
+.mytheme {
+  // Output the actual theme selectors
+  @include addons;
+  @include dashboard;
+
+}
+
+

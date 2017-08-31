@@ -43,38 +43,38 @@ public class MihPanel extends Panel {
         mainLayout.setMargin(false);
         mainLayout.setImmediate(true);
         mainLayout.setWidth(100, Unit.PERCENTAGE);
-//        mainLayout.addStyleName(FlexCityTheme.FLEX_100PERCENT_WIDTH);
 
         headerLayout = new HorizontalLayout();
-
-//        headerLabel.addStyleName(FlexBaseTheme.FLEX_GENERAL_PANEL_TITLE_LABEL);
-//        headerHelperLabel.addStyleName(FlexBaseTheme.FLEX_GENERAL_PANEL_TITLE_HELPER_LABEL);
         headerLayout.setWidth(100, Unit.PERCENTAGE);
-//        headerLayout.addStyleName(FlexCityTheme.FLEX_GENERAL_PANEL_TITLE);
+        headerLayout.setSpacing(false);
 
         headerExtensionLayout = new HorizontalLayout();
-//        headerExtensionLayout.addStyleName(FlexCityTheme.FLEX_GENERAL_PANEL_INSIDE_BUTTON);
 
         showHideButtonLayout = createShowHideLayout();
 
         collapseExpandLayout = createCollapseExpandLayout();
 
         headerLayout.addComponent(headerLabel);
+        headerLayout.setComponentAlignment(headerLabel, Alignment.BOTTOM_LEFT);
         headerLayout.addComponent(headerHelperLabel);
+        headerLayout.setComponentAlignment(headerHelperLabel, Alignment.BOTTOM_RIGHT);
         headerLayout.addComponent(headerExtensionLayout);
-        headerLayout.addComponent(collapseExpandLayout);
-        headerLayout.addComponent(showHideButtonLayout);
+        headerLayout.setComponentAlignment(headerExtensionLayout, Alignment.BOTTOM_RIGHT);
+
+        HorizontalLayout buttonsLayout = new HorizontalLayout();
+        buttonsLayout.setSpacing(false);
+//        buttonsLayout.addComponent(collapseExpandLayout);
+        buttonsLayout.addComponent(showHideButtonLayout);
+        headerLayout.addComponent(buttonsLayout);
+        headerLayout.setComponentAlignment(buttonsLayout, Alignment.BOTTOM_RIGHT);
+
 
         contentLayout = new VerticalLayout();
-//        contentLayout.addStyleName(FlexCityTheme.FLEX_GENERAL_PANEL_BOTTOM_AREA);
 
         mainLayout.addComponent(headerLayout);
         mainLayout.addComponent(contentLayout);
 
         this.setContent(mainLayout);
-
-//        addStyleName(FlexCityTheme.FLEX_PANEL);
-        setIcon(FontAwesome.TH_LARGE);
     }
 
     public MihPanel(String caption) {
@@ -105,7 +105,6 @@ public class MihPanel extends Panel {
     private HorizontalLayout createShowHideLayout() {
 
         showHideButtonLayout = new HorizontalLayout();
-//        showHideButtonLayout.addStyleName(FlexCityTheme.FLEX_GENERAL_PANEL_SHOW_HIDE);
         showHideButtonLayout.addLayoutClickListener(new ShowHideLayoutClickListener());
 
         showHideButton = new Label();
@@ -119,7 +118,6 @@ public class MihPanel extends Panel {
 
     private HorizontalLayout createCollapseExpandLayout(){
         collapseExpandLayout = new HorizontalLayout();
-//        collapseExpandLayout.addStyleName(FlexBaseTheme.FLEX_GENERAL_PANEL_SHOW_HIDE_BUTTON);
 
         collapseExpandButton = new Button();
         collapseExpandButton.setIcon(FontAwesome.EXPAND);
@@ -135,8 +133,6 @@ public class MihPanel extends Panel {
         public void buttonClick(Button.ClickEvent clickEvent) {
 
             setCollapsed(false);
-//            ViewUtil.changeFullScreenComponentWithStyleName(collapseExpandButton, FlexPanel.this, "f-fullPanel");
-//            ViewUtil.executeVaadinForceSync();
         }
     }
 
@@ -190,7 +186,6 @@ public class MihPanel extends Panel {
             headerExtensionLayout.removeComponent(component);
         this.headerExtensionLayout.addComponent(component);
         this.headerExtensionComponent = component;
-        //this.headerExtensionComponent.addStyleName(FlexCityTheme.FLEX_GENERAL_PANEL_BUTTON_AREA);
     }
 
     private class ShowHideLayoutClickListener implements LayoutEvents.LayoutClickListener {
