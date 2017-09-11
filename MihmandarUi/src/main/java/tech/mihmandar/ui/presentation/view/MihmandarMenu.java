@@ -11,7 +11,7 @@ import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.MenuBar.Command;
 import com.vaadin.ui.MenuBar.MenuItem;
 import com.vaadin.ui.themes.ValoTheme;
-import tech.mihmandar.core.base.dto.UserDto;
+import tech.mihmandar.core.common.dto.UserDto;
 import tech.mihmandar.ui.presentation.common.MihmandarApplication;
 import tech.mihmandar.ui.presentation.component.ProfilePreferencesWindow;
 import tech.mihmandar.ui.presentation.event.MihmandarEvent;

@@ -3,21 +3,29 @@ package tech.mihmandar.ui.presentation.common;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.Title;
-import com.vaadin.navigator.Navigator;
 import com.vaadin.server.Page;
 import com.vaadin.server.Responsive;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinSession;
+import com.vaadin.ui.Notification;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.ValoTheme;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
-import tech.mihmandar.core.base.dto.UserDto;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
+import org.springframework.web.context.support.WebApplicationContextUtils;
+import tech.mihmandar.core.common.dto.UserDto;
+import tech.mihmandar.core.data.user.domain.User;
+import tech.mihmandar.core.data.user.service.UserService;
 import tech.mihmandar.ui.presentation.event.MihmandarEvent;
 import tech.mihmandar.ui.presentation.event.MihmandarEventBus;
 import tech.mihmandar.ui.presentation.view.LoginView;
 import tech.mihmandar.ui.presentation.view.MainView;
 
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
 import java.util.Calendar;
 
 
@@ -29,7 +37,11 @@ import java.util.Calendar;
 @Component
 public class MihmandarApplication extends UI {
 
-    private Navigator navigator;
+    @Autowired
+    UserService userService;
+
+    @Autowired
+    private ApplicationContext applicationContext;
 
     private final MihmandarEventBus mihmandarEventbus = new MihmandarEventBus();
 
@@ -37,8 +49,12 @@ public class MihmandarApplication extends UI {
         return (MihmandarApplication) getCurrent();
     }
 
-
     protected void init(VaadinRequest request) {
+        SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
+
+        HttpServletRequest httpServletRequest = ((HttpServletRequest) request);
+        ServletContext servletContext = httpServletRequest.getSession().getServletContext();
+        applicationContext = WebApplicationContextUtils.getRequiredWebApplicationContext(servletContext);
 
         Calendar calendar = Calendar.getInstance();
         int year = calendar.get(Calendar.YEAR);
@@ -59,105 +75,6 @@ public class MihmandarApplication extends UI {
                         MihmandarEventBus.post(new MihmandarEvent.BrowserResizeEvent());
                     }
                 });
-//
-//        HorizontalLayout horizontalLayout = new HorizontalLayout();
-//        horizontalLayout.setSizeFull();
-//        horizontalLayout.addStyleName("backColorGrey");
-//        MihPanel panel = new MihPanel();
-//        panel.setCaption("Yazılım Dili Seçim");
-//        panel.addStyleName("backColorGrey");
-//        panel.setSizeFull();
-//        Label label = new Label();
-//        label.setValue("Test Background color");
-
-//        horizontalLayout.addComponent(label);
-//        content.addComponent(panel);
-//        content.setComponentAlignment(panel, Alignment.BOTTOM_CENTER);
-
-
-
-//        Responsive.makeResponsive(this);
-//        getPage().setTitle("Mihmandar");
-//
-//        final VerticalLayout mainLayout = new VerticalLayout();
-//        mainLayout.setMargin(true);
-//        setContent(mainLayout);
-//
-//        HorizontalLayout horizontalLayout = new HorizontalLayout();
-//        horizontalLayout.setSizeFull();
-//        mainLayout.addComponent(horizontalLayout);
-//
-//        MihPanel panel1 = new MihPanel();
-//        panel1.setCaption("İşlem");
-//        panel1.setHeight(600, Unit.PIXELS);
-//        horizontalLayout.addComponent(panel1);
-//
-//        MihPanel panel2 = new MihPanel();
-//        panel2.setCaption("Editör");
-//        panel2.setSizeFull();
-//        panel2.setHeight(600, Unit.PIXELS);
-//        horizontalLayout.addComponent(panel2);
-//
-//        horizontalLayout.setExpandRatio(panel1, 1f);
-//        horizontalLayout.setExpandRatio(panel2, 1f);
-//
-//        setContent(mainLayout);
-//
-//        final AceEditor aceEditor = new AceEditor();
-//        AceMode aceMode = AceMode.java;
-//        aceEditor.setMode(aceMode);
-//        aceEditor.setSizeFull();
-//        aceEditor.setTheme(AceTheme.terminal);
-//        aceEditor.setHeight(500, Unit.PIXELS);
-//        panel2.addComponent(aceEditor);
-//
-//        panel2.setCaption("Ace Mode("+ aceMode+ ")");
-//
-//        Button btn = new Button("Derle");
-//        btn.addClickListener(new Button.ClickListener() {
-//            public void buttonClick(Button.ClickEvent event) {
-//                String value = aceEditor.getValue();
-//
-//                List<Diagnostic<? extends JavaFileObject>> diagnostics = Collections.emptyList();
-//                try {
-//                    Random random = new Random();
-//                    long i = random.nextInt(1000);
-//                    String next = String.valueOf(i);
-//                    String sourceFilePath = System.getProperty("java.io.tmpdir") + File.separator + "file" + next + ".java";
-//                    File file = new File(sourceFilePath);
-//                    file.createNewFile();
-//                    FileUtils.writeByteArrayToFile(file, value.getBytes());
-//
-//                    JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-//
-//                    DiagnosticCollector<JavaFileObject> diagnosticsCollector = new DiagnosticCollector<JavaFileObject>();
-//                    StandardJavaFileManager fileManager = compiler.getStandardFileManager(diagnosticsCollector, null, null);
-//                    Iterable<? extends JavaFileObject> compilationUnits = fileManager.getJavaFileObjectsFromStrings(Arrays.asList(sourceFilePath));
-//                    JavaCompiler.CompilationTask task = compiler.getTask(null, fileManager, diagnosticsCollector, null, null, compilationUnits);
-//                    boolean success = task.call();
-//                    if (!success) {
-//                        diagnostics = diagnosticsCollector.getDiagnostics();
-//                    }
-//                    fileManager.close();
-//
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
-//
-//                if(diagnostics.isEmpty()){
-//                    Notification.show("Derleme Başarılı", Notification.Type.HUMANIZED_MESSAGE);
-//                }else{
-//                    String errors  = "";
-//                    for (Diagnostic<? extends JavaFileObject> diagnostic : diagnostics) {
-//                        errors += " " + diagnostic.getMessage(null);
-//                    }
-//                    Notification.show("Derleme Hatası" + errors, Notification.Type.HUMANIZED_MESSAGE);
-//                }
-//
-//            }
-//        });
-//        mainLayout.addComponent(btn);
-//        mainLayout.setComponentAlignment(btn, Alignment.BOTTOM_RIGHT);
     }
 
     private void updateContent() {
@@ -174,24 +91,35 @@ public class MihmandarApplication extends UI {
         }
     }
 
+    public ApplicationContext getApplicationContext() {
+        return applicationContext;
+    }
+
     public MihmandarEventBus getMihmandarEventbus() {
         return mihmandarEventbus;
     }
 
     @Subscribe
     public void userLoginRequested(final MihmandarEvent.UserLoginRequestedEvent event) {
-        UserDto user = new UserDto();
-        user.setFirstName("MURAT");
-        user.setLastName("YILMAZ");
-        user.setRole("admin");
-        String email = user.getFirstName().toLowerCase() + "."
-                + user.getLastName().toLowerCase() + "@"
-                + "yilmaztech" + ".com";
-        user.setEmail(email.replaceAll(" ", ""));
-        user.setLocation("İstanbul");
-        user.setBio("Bu bir biyografidir");
-        VaadinSession.getCurrent().setAttribute(UserDto.class.getName(), user);
-        updateContent();
+        String userName = event.getUserName();
+        String password = event.getPassword();
+        User user = userService.findUserByUsername(userName);
+        if(user == null){
+            Notification.show("Kullanıcı bilgileri hatalı", Notification.Type.TRAY_NOTIFICATION);
+        }else{
+            UserDto userDto = new UserDto();
+            userDto.setFirstName("MURAT");
+            userDto.setLastName("YILMAZ");
+            userDto.setRole("admin");
+            String email = userDto.getFirstName().toLowerCase() + "."
+                    + userDto.getLastName().toLowerCase() + "@"
+                    + "yilmaztech" + ".com";
+            userDto.setEmail(email.replaceAll(" ", ""));
+            userDto.setLocation("İstanbul");
+            userDto.setBio("Bu bir biyografidir");
+            VaadinSession.getCurrent().setAttribute(UserDto.class.getName(), userDto);
+            updateContent();
+        }
     }
 
     @Subscribe

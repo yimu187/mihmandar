@@ -10,27 +10,27 @@
 		<param-value>false</param-value>
 	</context-param>
 
-	<context-param>
-		<param-name>contextConfigLocation</param-name>
-		<param-value>
-
-			classpath:security-context.xml
-			classpath:applicationContext.xml
-
-		</param-value>
-	</context-param>
-
-	<!-- SPRING START -->
 	<!--<context-param>-->
 		<!--<param-name>contextConfigLocation</param-name>-->
-		<!--<param-value>classpath:applicationContext.xml</param-value>-->
+		<!--<param-value>-->
+
+			<!--&lt;!&ndash;classpath:security-context.xml&ndash;&gt;-->
+			<!--classpath:applicationContext.xml-->
+
+		<!--</param-value>-->
 	<!--</context-param>-->
-	<!--<listener>-->
-		<!--<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>-->
-	<!--</listener>-->
-	<!--<listener>-->
-		<!--<listener-class>org.springframework.web.context.request.RequestContextListener</listener-class>-->
-	<!--</listener>-->
+
+	<!-- SPRING START -->
+	<context-param>
+		<param-name>contextConfigLocation</param-name>
+		<param-value>classpath:applicationContext.xml</param-value>
+	</context-param>
+	<listener>
+		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+	</listener>
+	<listener>
+		<listener-class>org.springframework.web.context.request.RequestContextListener</listener-class>
+	</listener>
 	<!-- SPRING END -->
 
 	<!-- Vaadin servlet -->

@@ -21,15 +21,12 @@ http://www.springframework.org/schema/task/spring-task-3.0.xsd">
 
 	<context:component-scan base-package="tech.mihmandar.core" />
 
-
 <!-- Scheduled ve Async annotasyonlarının çalışması için -->
     <task:annotation-driven/>
 
 	<!-- @Transactional annotation'inin calismasi icin bunun olmasi gerekiyor -->
 	<tx:annotation-driven transaction-manager="transactionManager" />
 
-	<!--<bean id="springApplicationContext"-->
-		<!--class="com.uniyaz.flexcity.core.mis.common.context.SpringApplicationContext" />-->
 
 
 	<!-- Uygulamaya ait property'leri bu dosyadan almasini soyluyoruz. -->

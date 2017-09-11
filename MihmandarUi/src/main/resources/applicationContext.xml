@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans
+						   http://www.springframework.org/schema/beans/spring-beans.xsd
+
+
+                           http://www.springframework.org/schema/context
+                           http://www.springframework.org/schema/context/spring-context.xsd
+                           http://www.springframework.org/schema/tx
+                           http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+
+	<context:spring-configured />
+	<context:annotation-config />
+	<tx:annotation-driven transaction-manager="transactionManager" />
+
+	<context:component-scan base-package="tech.mihmandar"></context:component-scan>
+
+	<bean class="org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor" />
+	<bean class="org.springframework.context.annotation.CommonAnnotationBeanPostProcessor" />
+
+	<bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="ignoreUnresolvablePlaceholders" value="true" />
+	</bean>
+
+	<bean
+		class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer">
+		<property name="localOverride" value="true" />
+        <property name="fileEncoding" value="UTF-8"/>
+		<property name="ignoreResourceNotFound" value="true" />
+		<property name="locations">
+			<list>
+				<!-- Varsayılan değerler en üstte belirtilmektedir.
+					 Böylece sonra gelen dosyalarda varsayılan değerleri ezmek mümkün olmaktadır. -->
+				<value>file:///${mihmandarConfigPath}/config/default/application-env-shared.properties</value>
+				<value>file:///${mihmandarConfigPath}/config/application-shared.properties</value>
+				<value>file:///${mihmandarConfigPath}/config/default/application-dev.properties</value>
+				<value>file:///${mihmandarConfigPath}/config/application-logging.properties</value>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="sessionFactory" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="namingStrategy" ref="namingStrategy" />
+
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.dialect">${hibernate.dialect}</prop>
+				<prop key="hibernate.show_sql">${hibernate.show_sql}</prop>
+				<prop key="hibernate.default_schema">${hibernate.default.schema}
+				</prop>
+				<prop key="hibernate.format_sql">true</prop>
+				<prop key="hibernate.default_schema">${jdbc.username}</prop>
+				<!-- for batch operations -->
+				<!-- <prop key="hibernate.jdbc.batch_size">20</prop> -->
+				<!-- <prop key="hibernate.cache.use_second_level_cache">false </prop> -->
+				<!-- -->
+				<!--<prop key="hibernate.hbm2ddl.auto">${jdbc.hibernate.hbm2ddl}</prop>-->
+				<prop key="hibernate.connection.release_mode">auto</prop>
+				<prop key="org.hibernate.envers.default_schema">${jdbc.audit.username}</prop>
+				<prop key="org.hibernate.envers.store_data_at_delete">true</prop>
+				<prop key="org.hibernate.envers.revision_field_name">id_revinfo</prop>
+				<prop key="org.hibernate.envers.revision_type_field_name">rev_type</prop>
+
+                <!--<prop key="hibernate.cache.region.factory_class">org.hibernate.cache.ehcache.EhCacheRegionFactory</prop>-->
+                <!--<prop key="hibernate.cache.use_query_cache">true</prop>-->
+                <!--<prop key="hibernate.cache.use_second_level_cache">true</prop>-->
+                <prop key="hibernate.generate_statistics">true</prop>
+            </props>
+		</property>
+		<property name="packagesToScan" value="tech.mihmandar" />
+	</bean>
+
+	<bean id="namingStrategy" class="org.hibernate.cfg.ImprovedNamingStrategy" />
+
+	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource"
+		destroy-method="close">
+		<property name="driverClass">
+			<value>${jdbc.driverClassName}</value>
+		</property>
+		<property name="jdbcUrl">
+			<value>${jdbc.url}</value>
+		</property>
+		<property name="user">
+			<value>${jdbc.username}</value>
+		</property>
+		<property name="password">
+			<value>${jdbc.password}</value>
+		</property>
+		<property name="initialPoolSize">
+			<value>${cp3o.initialPoolSize}</value>
+		</property>
+		<property name="minPoolSize">
+			<value>${cp3o.minPoolSize}</value>
+		</property>
+		<property name="maxPoolSize">
+			<value>${cp3o.maxPoolSize}</value>
+		</property>
+		<property name="idleConnectionTestPeriod">
+			<value>${cp3o.idleConnectionTestPeriod}</value>
+		</property>
+		<property name="acquireIncrement">
+			<value>${cp3o.acquireIncrement}</value>
+		</property>
+		<property name="maxStatements">
+			<value>${cp3o.maxStatements}</value>
+		</property>
+        <property name="maxStatementsPerConnection">
+            <value>${cp3o.maxStatementsPerConnection}</value>
+        </property>
+        <property name="statementCacheNumDeferredCloseThreads">
+            <value>${cp3o.statementCacheNumDeferredCloseThreads}</value>
+        </property>
+		<property name="numHelperThreads">
+			<value>${cp3o.numHelperThreads}</value>
+		</property>
+ 	</bean>
+
+	<bean class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor" />
+
+	<bean id="transactionManager" class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactory" />
+		<property name="dataSource" ref="dataSource" /> <!-- Bunu activiti Hibernate'in trx'ini kullansın diye ekledik, murat -->
+	</bean>
+
+	<bean class="org.springframework.core.LocalVariableTableParameterNameDiscoverer" />
+</beans>

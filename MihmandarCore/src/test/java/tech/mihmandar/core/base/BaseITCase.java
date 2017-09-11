@@ -15,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 @RunWith(SpringJUnit4ClassRunner.class)
 // defaultRollback = false olursa db ye commit edilir.
 @TransactionConfiguration(transactionManager = "transactionManager", defaultRollback = false)
-//@ContextConfiguration("classpath:applicationcontext-automaticintegration.xml")
 @ContextConfiguration("classpath:applicationcontext-servicetest.xml")
 public abstract class BaseITCase extends AbstractTransactionalJUnit4SpringContextTests {
 

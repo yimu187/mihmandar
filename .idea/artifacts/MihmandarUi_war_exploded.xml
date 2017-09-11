@@ -61,9 +61,11 @@
           <element id="library" level="project" name="Maven: com.mchange:mchange-commons-java:0.2.3.4" />
           <element id="library" level="project" name="Maven: org.hibernate:hibernate-validator:4.2.0.Final" />
           <element id="library" level="project" name="Maven: org.slf4j:slf4j-api:1.6.1" />
-          <element id="library" level="project" name="Maven: postgresql:postgresql:9.1-901-1.jdbc4" />
-          <element id="library" level="project" name="Maven: org.apache.pdfbox:pdfbox:2.0.4" />
-          <element id="library" level="project" name="Maven: org.apache.pdfbox:fontbox:2.0.4" />
+          <element id="library" level="project" name="Maven: org.postgresql:postgresql:9.4.1212" />
+          <element id="archive" name="MihmandarUtility-1.0.jar">
+            <element id="module-output" name="MihmandarUtility" />
+          </element>
+          <element id="library" level="project" name="Maven: org.reflections:reflections:0.9.9-RC1" />
           <element id="library" level="project" name="Maven: org.vaadin.addons:googleanalyticstracker:2.1.0" />
         </element>
       </element>
