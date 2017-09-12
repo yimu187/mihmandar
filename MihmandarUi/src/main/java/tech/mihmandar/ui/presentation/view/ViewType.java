@@ -5,7 +5,8 @@ import com.vaadin.server.FontAwesome;
 import com.vaadin.server.Resource;
 
 public enum ViewType {
-    MIHMANDAR_HOME("dashboard", MihmandarView.class, FontAwesome.HOME, true)
+    MIHMANDAR_HOME("Derle", MihmandarView.class, FontAwesome.COMPASS, true)
+
 //    , SALES("sales", SalesView.class, FontAwesome.BAR_CHART_O, false)
 //    , TRANSACTIONS("transactions", TransactionsView.class, FontAwesome.TABLE, false)
 //    , REPORTS("reports", ReportsView.class, FontAwesome.FILE_TEXT_O, true)

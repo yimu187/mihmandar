@@ -14,4 +14,10 @@ public enum EnumGender {
     EnumGender(String gender){
         this.gender = gender;
     }
+
+
+    @Override
+    public String toString() {
+        return gender;
+    }
 }

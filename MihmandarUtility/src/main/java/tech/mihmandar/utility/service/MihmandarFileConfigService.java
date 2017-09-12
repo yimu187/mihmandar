@@ -15,6 +15,9 @@ import java.util.Properties;
 public class MihmandarFileConfigService {
 
     public static final String APPLICATION_DYNAMIC_PROPERTIES = "application-env-shared.properties";
+    public static final String APPLICATION_DEV_PROPERTIES = "application-dev.properties";
+    public static final String APPLICATION_URL_KEY = "flexcity.application.url";
+
     public static final String APPLICATION_CONFIG_PATH = System.getProperty("mihmandarConfigPath"); // "C:/JAVA/FlexCityConfig";
 
     public static String getFileConfig(String key) {
@@ -22,6 +25,13 @@ public class MihmandarFileConfigService {
         String filePath = APPLICATION_CONFIG_PATH + "/config/default/" + APPLICATION_DYNAMIC_PROPERTIES;
         properties = getProperties(properties, filePath);
         return (String)properties.get(key) ;
+    }
+
+    public static String getApplicationUrl(){
+        Properties properties = new Properties();
+        String filePath = APPLICATION_CONFIG_PATH + "/config/default/" + APPLICATION_DEV_PROPERTIES;
+        properties = getProperties(properties, filePath);
+        return (String)properties.get(APPLICATION_URL_KEY) ;
     }
 
     private static Properties getProperties(Properties properties, String filePath) {

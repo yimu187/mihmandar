@@ -2,6 +2,7 @@ package tech.mihmandar.core.data.user.domain;
 
 import org.hibernate.envers.Audited;
 import tech.mihmandar.core.common.entity.BaseEntity;
+import tech.mihmandar.core.common.enums.EnumGender;
 
 import javax.persistence.*;
 
@@ -37,10 +38,14 @@ public class User extends BaseEntity {
     private String title;
 
     @Column(name = "GENDER", length = 10)
-    private boolean gender;
+    @Enumerated(EnumType.STRING)
+    private EnumGender gender;
 
     @Column(name = "EMAIL", length = 100)
     private String email;
+
+    @Column(name = "PASSWORD", length = 100)
+    private String password;
 
     @Column(name = "LOCATION", length = 4000)
     private String location;
@@ -108,11 +113,11 @@ public class User extends BaseEntity {
         this.title = title;
     }
 
-    public boolean isGender() {
+    public EnumGender getGender() {
         return gender;
     }
 
-    public void setGender(boolean gender) {
+    public void setGender(EnumGender gender) {
         this.gender = gender;
     }
 
@@ -154,5 +159,13 @@ public class User extends BaseEntity {
 
     public void setBio(String bio) {
         this.bio = bio;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 }

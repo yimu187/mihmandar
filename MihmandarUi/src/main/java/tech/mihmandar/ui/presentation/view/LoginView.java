@@ -4,6 +4,8 @@ package tech.mihmandar.ui.presentation.view;
  * Created by Murat on 6/18/2017.
  */
 
+import com.vaadin.event.ContextClickEvent;
+import com.vaadin.event.LayoutEvents;
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.server.ExternalResource;
 import com.vaadin.server.FontAwesome;
@@ -17,6 +19,7 @@ import com.vaadin.ui.themes.ValoTheme;
 import tech.mihmandar.ui.presentation.common.MihmandarApplication;
 import tech.mihmandar.ui.presentation.event.MihmandarEvent;
 import tech.mihmandar.ui.presentation.event.MihmandarEventBus;
+import tech.mihmandar.utility.service.MihmandarFileConfigService;
 
 @SuppressWarnings("serial")
 public class LoginView extends VerticalLayout {
@@ -54,12 +57,29 @@ public class LoginView extends VerticalLayout {
         CheckBox checkBox = new CheckBox("Beni Hatirla", true);
         horizontalLayout.addComponent(checkBox);
 
+        String url = MihmandarFileConfigService.getApplicationUrl() + "/#!newUser";
+
+        HorizontalLayout hLink = new HorizontalLayout();
+        hLink.addLayoutClickListener(new LayoutEvents.LayoutClickListener() {
+            @Override
+            public void layoutClick(LayoutEvents.LayoutClickEvent event) {
+                MihmandarApplication.get().getMihmandarEventbus().post(new MihmandarEvent.UserLoginRequestedEvent(null
+                        , null, true));
+            }
+        });
         Link link = new Link("Yeni Üye",
-                new ExternalResource("http://vaadin.com/"));
-        horizontalLayout.addComponent(link);
+                new ExternalResource(url));
+        link.addContextClickListener(new ContextClickEvent.ContextClickListener() {
+            @Override
+            public void contextClick(ContextClickEvent event) {
+                System.out.println("clicked");
+            }
+        });
+        hLink.addComponent(link);
+        horizontalLayout.addComponent(hLink);
 
         horizontalLayout.setComponentAlignment(checkBox, Alignment.BOTTOM_LEFT);
-        horizontalLayout.setComponentAlignment(link, Alignment.BOTTOM_RIGHT);
+        horizontalLayout.setComponentAlignment(hLink, Alignment.BOTTOM_RIGHT);
         loginPanel.addComponent(horizontalLayout);
 
         return loginPanel;
@@ -89,7 +109,7 @@ public class LoginView extends VerticalLayout {
         signin.addClickListener(new ClickListener() {
             public void buttonClick(ClickEvent event) {
                 MihmandarApplication.get().getMihmandarEventbus().post(new MihmandarEvent.UserLoginRequestedEvent(username
-                        .getValue(), password.getValue()));
+                        .getValue(), password.getValue(), false));
             }
         });
         return fields;

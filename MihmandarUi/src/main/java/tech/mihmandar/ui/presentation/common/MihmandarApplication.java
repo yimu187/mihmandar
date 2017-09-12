@@ -13,6 +13,8 @@ import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.ValoTheme;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 import org.springframework.web.context.support.WebApplicationContextUtils;
@@ -23,6 +25,8 @@ import tech.mihmandar.ui.presentation.event.MihmandarEvent;
 import tech.mihmandar.ui.presentation.event.MihmandarEventBus;
 import tech.mihmandar.ui.presentation.view.LoginView;
 import tech.mihmandar.ui.presentation.view.MainView;
+import tech.mihmandar.ui.presentation.view.NewUserView;
+import tech.mihmandar.utility.enums.ErrorEnums;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
@@ -103,22 +107,32 @@ public class MihmandarApplication extends UI {
     public void userLoginRequested(final MihmandarEvent.UserLoginRequestedEvent event) {
         String userName = event.getUserName();
         String password = event.getPassword();
-        User user = userService.findUserByUsername(userName);
-        if(user == null){
-            Notification.show("Kullanıcı bilgileri hatalı", Notification.Type.TRAY_NOTIFICATION);
+        boolean newUser = event.isNewUser();
+        if(!newUser){
+            User user = userService.findUserByUsername(userName);
+            if(user == null){
+                Notification.show("Kullanıcı bilgileri hatalı", Notification.Type.TRAY_NOTIFICATION);
+            }else{
+                boolean matches = userService.checkPassword(password, user.getPassword());
+                if(matches){
+                    UserDto userDto = new UserDto();
+                    userDto.setFirstName("MURAT");
+                    userDto.setLastName("YILMAZ");
+                    userDto.setRole("admin");
+                    String email = userDto.getFirstName().toLowerCase() + "."
+                            + userDto.getLastName().toLowerCase() + "@"
+                            + "yilmaztech" + ".com";
+                    userDto.setEmail(email.replaceAll(" ", ""));
+                    userDto.setLocation("İstanbul");
+                    userDto.setBio("Bu bir biyografidir");
+                    VaadinSession.getCurrent().setAttribute(UserDto.class.getName(), userDto);
+                    updateContent();
+                }else{
+                    com.vaadin.ui.Notification.show(ErrorEnums.HATALI_SIFRE.toString(),  Notification.Type.ERROR_MESSAGE);
+                }
+            }
         }else{
-            UserDto userDto = new UserDto();
-            userDto.setFirstName("MURAT");
-            userDto.setLastName("YILMAZ");
-            userDto.setRole("admin");
-            String email = userDto.getFirstName().toLowerCase() + "."
-                    + userDto.getLastName().toLowerCase() + "@"
-                    + "yilmaztech" + ".com";
-            userDto.setEmail(email.replaceAll(" ", ""));
-            userDto.setLocation("İstanbul");
-            userDto.setBio("Bu bir biyografidir");
-            VaadinSession.getCurrent().setAttribute(UserDto.class.getName(), userDto);
-            updateContent();
+            setContent(new NewUserView());
         }
     }
 

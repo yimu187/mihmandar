@@ -9,11 +9,14 @@ public abstract class MihmandarEvent {
 
     public static final class UserLoginRequestedEvent {
         private final String userName, password;
+        private final boolean newUser;
 
         public UserLoginRequestedEvent(final String userName,
-                                       final String password) {
+                                       final String password,
+                                       final  boolean newUser) {
             this.userName = userName;
             this.password = password;
+            this.newUser = newUser;
         }
 
         public String getUserName() {
@@ -22,6 +25,10 @@ public abstract class MihmandarEvent {
 
         public String getPassword() {
             return password;
+        }
+
+        public boolean isNewUser() {
+            return newUser;
         }
     }
 

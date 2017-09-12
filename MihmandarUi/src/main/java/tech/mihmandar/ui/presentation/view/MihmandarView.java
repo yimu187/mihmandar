@@ -154,7 +154,7 @@ public final class MihmandarView extends Panel implements View
 
     private Component buildNotes() {
         TextArea notes = new TextArea("Notes");
-        notes.setValue("Remember to:\n· Zoom in and out in the Sales view\n· Filter the transactions and drag a set of them to the Reports tab\n· Create a new report\n· Change the schedule of the movie theater");
+        notes.setValue("Test derlemesi için aşağıdaki kodu  yan taraftaki editörü kullanabilirsiniz:\n class HelloWorldApp {\n\t public static void main(String[] args) {\n\t\t System.out.println(\"Hello World!\"); // Display the string.\n\t } \n }");
         notes.setSizeFull();
         notes.addStyleName(ValoTheme.TEXTAREA_BORDERLESS);
         Component panel = createContentWrapper(notes);
