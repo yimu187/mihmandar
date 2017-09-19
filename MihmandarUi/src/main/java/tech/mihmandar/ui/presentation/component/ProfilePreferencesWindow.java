@@ -13,6 +13,7 @@ import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.themes.ValoTheme;
 import tech.mihmandar.core.common.dto.UserDto;
+import tech.mihmandar.core.common.enums.EnumGender;
 import tech.mihmandar.ui.presentation.common.MihmandarApplication;
 import tech.mihmandar.ui.presentation.event.MihmandarEvent;
 
@@ -22,20 +23,13 @@ public class ProfilePreferencesWindow extends Window {
     public static final String ID = "profilepreferenceswindow";
 
     private final BeanFieldGroup<UserDto> fieldGroup;
-    /*
-     * Fields for editing the User object are defined here as class members.
-     * They are later bound to a FieldGroup by calling
-     * fieldGroup.bindMemberFields(this). The Fields' values don't need to be
-     * explicitly set, calling fieldGroup.setItemDataSource(user) synchronizes
-     * the fields with the user object.
-     */
     @PropertyId("firstName")
     private TextField firstNameField;
     @PropertyId("lastName")
     private TextField lastNameField;
     @PropertyId("title")
-    private ComboBox titleField;
-    @PropertyId("male")
+    private TextField titleField;
+    @PropertyId("gender")
     private OptionGroup sexField;
     @PropertyId("email")
     private TextField emailField;
@@ -43,8 +37,6 @@ public class ProfilePreferencesWindow extends Window {
     private TextField locationField;
     @PropertyId("phone")
     private TextField phoneField;
-    @PropertyId("newsletterSubscription")
-    private OptionalSelect<Integer> newsletterField;
     @PropertyId("website")
     private TextField websiteField;
     @PropertyId("bio")
@@ -91,13 +83,13 @@ public class ProfilePreferencesWindow extends Window {
 
     private Component buildPreferencesTab() {
         VerticalLayout root = new VerticalLayout();
-        root.setCaption("Preferences");
+        root.setCaption("Ayarlar");
         root.setIcon(FontAwesome.COGS);
         root.setSpacing(true);
         root.setMargin(true);
         root.setSizeFull();
 
-        Label message = new Label("Not implemented in this demo");
+        Label message = new Label("Henüz uyarlaması yapılmadı");
         message.setSizeUndefined();
         message.addStyleName(ValoTheme.LABEL_LIGHT);
         root.addComponent(message);
@@ -108,7 +100,7 @@ public class ProfilePreferencesWindow extends Window {
 
     private Component buildProfileTab() {
         HorizontalLayout root = new HorizontalLayout();
-        root.setCaption("Profile");
+        root.setCaption("Profil");
         root.setIcon(FontAwesome.USER);
         root.setWidth(100.0f, Unit.PERCENTAGE);
         root.setSpacing(true);
@@ -123,9 +115,9 @@ public class ProfilePreferencesWindow extends Window {
         profilePic.setWidth(100.0f, Unit.PIXELS);
         pic.addComponent(profilePic);
 
-        Button upload = new Button("Change…", new ClickListener() {
+        Button upload = new Button("Güncelle…", new ClickListener() {
             public void buttonClick(ClickEvent event) {
-                Notification.show("Not implemented in this demo");
+                Notification.show("Henüz Uyarlanmadı");
             }
         });
         upload.addStyleName(ValoTheme.BUTTON_TINY);
@@ -138,68 +130,57 @@ public class ProfilePreferencesWindow extends Window {
         root.addComponent(details);
         root.setExpandRatio(details, 1);
 
-        firstNameField = new TextField("First Name");
+        firstNameField = new TextField("Adı");
         details.addComponent(firstNameField);
-        lastNameField = new TextField("Last Name");
+        lastNameField = new TextField("Soyadı");
         details.addComponent(lastNameField);
 
-        titleField = new ComboBox("Title");
-        titleField.setInputPrompt("Please specify");
-        titleField.addItem("Mr.");
-        titleField.addItem("Mrs.");
-        titleField.addItem("Ms.");
-        titleField.setNewItemsAllowed(true);
+        titleField = new TextField("Ön Adı");
+        titleField.setInputPrompt("Lütfen Bir Değer Giriniz");
         details.addComponent(titleField);
 
-        sexField = new OptionGroup("Sex");
-        sexField.addItem(Boolean.FALSE);
-        sexField.setItemCaption(Boolean.FALSE, "Female");
-        sexField.addItem(Boolean.TRUE);
-        sexField.setItemCaption(Boolean.TRUE, "Male");
+        sexField = new OptionGroup("Cinsiyet");
+        sexField.addItem(EnumGender.FEMALE);
+        sexField.addItem(EnumGender.MALE);
+        sexField.addItem(EnumGender.OTHER);
         sexField.addStyleName("horizontal");
         details.addComponent(sexField);
 
-        Label section = new Label("Contact Info");
+        Label section = new Label("İletişim Bilgileri");
         section.addStyleName(ValoTheme.LABEL_H4);
         section.addStyleName(ValoTheme.LABEL_COLORED);
         details.addComponent(section);
 
-        emailField = new TextField("Email");
+        emailField = new TextField("E Posta");
         emailField.setWidth("100%");
         emailField.setRequired(true);
         emailField.setNullRepresentation("");
         details.addComponent(emailField);
 
-        locationField = new TextField("Location");
+        locationField = new TextField("Adres");
         locationField.setWidth("100%");
         locationField.setNullRepresentation("");
         locationField.setComponentError(new UserError(
                 "This address doesn't exist"));
         details.addComponent(locationField);
 
-        phoneField = new TextField("Phone");
+        phoneField = new TextField("Telefon");
         phoneField.setWidth("100%");
         phoneField.setNullRepresentation("");
         details.addComponent(phoneField);
 
-        newsletterField = new OptionalSelect<Integer>();
-        newsletterField.addOption(0, "Daily");
-        newsletterField.addOption(1, "Weekly");
-        newsletterField.addOption(2, "Monthly");
-        details.addComponent(newsletterField);
-
-        section = new Label("Additional Info");
+        section = new Label("Ek Bilgi");
         section.addStyleName(ValoTheme.LABEL_H4);
         section.addStyleName(ValoTheme.LABEL_COLORED);
         details.addComponent(section);
 
-        websiteField = new TextField("Website");
+        websiteField = new TextField("Web Sitesi");
         websiteField.setInputPrompt("http://");
         websiteField.setWidth("100%");
         websiteField.setNullRepresentation("");
         details.addComponent(websiteField);
 
-        bioField = new TextArea("Bio");
+        bioField = new TextArea("Biyografi");
         bioField.setWidth("100%");
         bioField.setRows(4);
         bioField.setNullRepresentation("");
@@ -213,7 +194,7 @@ public class ProfilePreferencesWindow extends Window {
         footer.addStyleName(ValoTheme.WINDOW_BOTTOM_TOOLBAR);
         footer.setWidth(100.0f, Unit.PERCENTAGE);
 
-        Button ok = new Button("OK");
+        Button ok = new Button("Tamam");
         ok.addStyleName(ValoTheme.BUTTON_PRIMARY);
         ok.addClickListener(new ClickListener() {
             @Override
@@ -233,7 +214,7 @@ public class ProfilePreferencesWindow extends Window {
                     MihmandarApplication.get().getMihmandarEventbus().post(new MihmandarEvent.ProfileUpdatedEvent());
                     close();
                 } catch (CommitException e) {
-                    Notification.show("Error while updating profile",
+                    Notification.show("Profil güncellenirken hata oluştu",
                             Type.ERROR_MESSAGE);
                 }
 

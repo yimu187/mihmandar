@@ -1,5 +1,7 @@
 package tech.mihmandar.core.common.dto;
 
+import tech.mihmandar.core.common.enums.EnumGender;
+
 /**
  * Created by Murat on 8/31/2017.
  */
@@ -10,7 +12,7 @@ public class UserDto {
     private String firstName;
     private String lastName;
     private String title;
-    private boolean male;
+    private EnumGender gender;
     private String email;
     private String location;
     private String phone;
@@ -53,12 +55,12 @@ public class UserDto {
         this.title = title;
     }
 
-    public boolean isMale() {
-        return male;
+    public EnumGender getGender() {
+        return gender;
     }
 
-    public void setMale(boolean male) {
-        this.male = male;
+    public void setGender(EnumGender gender) {
+        this.gender = gender;
     }
 
     public String getEmail() {

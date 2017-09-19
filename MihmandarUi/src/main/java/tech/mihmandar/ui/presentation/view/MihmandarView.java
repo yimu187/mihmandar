@@ -14,6 +14,7 @@ import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.MenuBar.Command;
 import com.vaadin.ui.MenuBar.MenuItem;
 import com.vaadin.ui.themes.ValoTheme;
+import org.apache.commons.io.FileUtils;
 import org.vaadin.aceeditor.AceEditor;
 import org.vaadin.aceeditor.AceMode;
 import org.vaadin.aceeditor.AceTheme;
@@ -21,7 +22,10 @@ import tech.mihmandar.ui.presentation.common.MihmandarApplication;
 import tech.mihmandar.ui.presentation.component.OptionalSelect;
 import tech.mihmandar.ui.presentation.event.MihmandarEvent;
 
-import java.util.Iterator;
+import javax.tools.*;
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
 
 @SuppressWarnings("serial")
 public final class MihmandarView extends Panel implements View
@@ -35,6 +39,7 @@ public final class MihmandarView extends Panel implements View
     private CssLayout dashboardPanels;
     private final VerticalLayout root;
     private Window notificationsWindow;
+    private AceEditor aceEditor;
 
     public MihmandarView() {
         addStyleName(ValoTheme.PANEL_BORDERLESS);
@@ -112,9 +117,6 @@ public final class MihmandarView extends Panel implements View
         result.addClickListener(new ClickListener() {
             @Override
             public void buttonClick(final ClickEvent event) {
-//                getUI().addWindow(
-//                        new DashboardEdit(MihmandarView.this, titleLabel
-//                                .getValue()));
             }
         });
         return result;
@@ -125,10 +127,9 @@ public final class MihmandarView extends Panel implements View
         dashboardPanels.addStyleName("dashboard-panels");
         Responsive.makeResponsive(dashboardPanels);
 
-//        dashboardPanels.addComponent(buildTopGrossingMovies());
         dashboardPanels.addComponent(buildNotes());
 
-        final AceEditor aceEditor = new AceEditor();
+        aceEditor = new AceEditor();
         aceEditor.setHeight(100, Unit.PERCENTAGE);
         AceMode aceMode = AceMode.java;
         aceEditor.setMode(aceMode);
@@ -136,21 +137,12 @@ public final class MihmandarView extends Panel implements View
         aceEditor.setTheme(AceTheme.terminal);
         aceEditor.setHeight(500, Unit.PIXELS);
         Component panel = createContentWrapper(aceEditor);
-//        panel.addStyleName("notes");
         panel.setHeight(100, Unit.PERCENTAGE);
         dashboardPanels.addComponent(panel);
-
-//        dashboardPanels.addComponent(buildTop10TitlesByRevenue());
-//        dashboardPanels.addComponent(buildPopularMovies());
 
         return dashboardPanels;
     }
 
-//    private Component buildTopGrossingMovies() {
-//        TopGrossingMoviesChart topGrossingMoviesChart = new TopGrossingMoviesChart();
-//        topGrossingMoviesChart.setSizeFull();
-//        return createContentWrapper(topGrossingMoviesChart);
-//    }
 
     private Component buildNotes() {
         TextArea notes = new TextArea("Notes");
@@ -185,6 +177,16 @@ public final class MihmandarView extends Panel implements View
 
         MenuBar tools = new MenuBar();
         tools.addStyleName(ValoTheme.MENUBAR_BORDERLESS);
+
+        MenuItem compile = tools.addItem("", FontAwesome.PAINT_BRUSH, new Command() {
+
+            @Override
+            public void menuSelected(final MenuItem selectedItem) {
+               doCompile();
+            }
+        });
+        compile.setStyleName("icon-only");
+
         MenuItem max = tools.addItem("", FontAwesome.EXPAND, new Command() {
 
             @Override
@@ -222,6 +224,46 @@ public final class MihmandarView extends Panel implements View
         card.addComponents(toolbar, content);
         slot.addComponent(card);
         return slot;
+    }
+
+    private void doCompile() {
+        String value = aceEditor.getValue();
+
+        List<Diagnostic<? extends JavaFileObject>> diagnostics = Collections.emptyList();
+        try {
+            Random random = new Random();
+            long i = random.nextInt(1000);
+            String next = String.valueOf(i);
+            String sourceFilePath = System.getProperty("java.io.tmpdir") + File.separator + "file" + next + ".java";
+            File file = new File(sourceFilePath);
+            file.createNewFile();
+            FileUtils.writeByteArrayToFile(file, value.getBytes());
+
+            JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+
+            DiagnosticCollector<JavaFileObject> diagnosticsCollector = new DiagnosticCollector<JavaFileObject>();
+            StandardJavaFileManager fileManager = compiler.getStandardFileManager(diagnosticsCollector, null, null);
+            Iterable<? extends JavaFileObject> compilationUnits = fileManager.getJavaFileObjectsFromStrings(Arrays.asList(sourceFilePath));
+            JavaCompiler.CompilationTask task = compiler.getTask(null, fileManager, diagnosticsCollector, null, null, compilationUnits);
+            boolean success = task.call();
+            if (!success) {
+                diagnostics = diagnosticsCollector.getDiagnostics();
+            }
+            fileManager.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        if(diagnostics.isEmpty()){
+            Notification.show("Derleme Başarılı", Notification.Type.HUMANIZED_MESSAGE);
+        }else{
+            String errors  = "";
+            for (Diagnostic<? extends JavaFileObject> diagnostic : diagnostics) {
+                errors += " " + diagnostic.getMessage(null);
+            }
+            Notification.show("Derleme Hatası" + errors, Notification.Type.HUMANIZED_MESSAGE);
+        }
     }
 
     private void openNotificationsPopup(final ClickEvent event) {

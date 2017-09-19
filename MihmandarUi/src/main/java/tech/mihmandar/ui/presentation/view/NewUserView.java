@@ -117,7 +117,7 @@ public class NewUserView extends VerticalLayout implements View {
 
                 userService.save(user);
                 MihmandarApplication.get().getMihmandarEventbus().post(new MihmandarEvent.UserLoginRequestedEvent(tfEmail.getValue()
-                        , password, false));
+                        , password, false, false));
             }
         });
 

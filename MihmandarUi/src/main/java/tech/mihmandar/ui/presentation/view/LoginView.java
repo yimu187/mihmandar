@@ -4,42 +4,52 @@ package tech.mihmandar.ui.presentation.view;
  * Created by Murat on 6/18/2017.
  */
 
-import com.vaadin.event.ContextClickEvent;
 import com.vaadin.event.LayoutEvents;
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.server.ExternalResource;
 import com.vaadin.server.FontAwesome;
-import com.vaadin.server.Page;
 import com.vaadin.server.Responsive;
-import com.vaadin.shared.Position;
 import com.vaadin.ui.*;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.themes.ValoTheme;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
+import tech.mihmandar.core.common.enums.EnumYN;
+import tech.mihmandar.core.data.user.domain.UserToken;
+import tech.mihmandar.core.data.user.service.UserTokenService;
+import tech.mihmandar.ui.presentation.common.CookieDto;
+import tech.mihmandar.ui.presentation.common.CookieUtil;
 import tech.mihmandar.ui.presentation.common.MihmandarApplication;
 import tech.mihmandar.ui.presentation.event.MihmandarEvent;
-import tech.mihmandar.ui.presentation.event.MihmandarEventBus;
 import tech.mihmandar.utility.service.MihmandarFileConfigService;
+
+import javax.servlet.http.Cookie;
+import java.io.IOException;
+import java.util.Date;
 
 @SuppressWarnings("serial")
 public class LoginView extends VerticalLayout {
 
+    @Autowired
+    UserTokenService userTokenService;
+
+    private CheckBox rememberMe;
+    private TextField username;
+    private PasswordField password;
+    private Button signin;
+
     public LoginView() {
+        SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
+
         setSizeFull();
 
         Component loginForm = buildLoginForm();
+        updateFieldsByCookieInfo();
         addComponent(loginForm);
         setComponentAlignment(loginForm, Alignment.MIDDLE_CENTER);
 
-        Notification notification = new Notification(
-                "Welcome to Dashboard Demo");
-        notification
-                .setDescription("<span>This application is not real, it only demonstrates an application built with the <a href=\"https://vaadin.com\">Vaadin framework</a>.</span> <span>No username or password is required, just click the <b>Sign In</b> button to continue.</span>");
-        notification.setHtmlContentAllowed(true);
-        notification.setStyleName("tray dark small closable login-help");
-        notification.setPosition(Position.BOTTOM_CENTER);
-        notification.setDelayMsec(20000);
-        notification.show(Page.getCurrent());
     }
 
     private Component buildLoginForm() {
@@ -54,33 +64,42 @@ public class LoginView extends VerticalLayout {
 
         HorizontalLayout horizontalLayout = new HorizontalLayout();
         horizontalLayout.setSizeFull();
-        CheckBox checkBox = new CheckBox("Beni Hatirla", true);
-        horizontalLayout.addComponent(checkBox);
+        rememberMe = new CheckBox("Beni Hatirla", true);
+        horizontalLayout.addComponent(rememberMe);
 
         String url = MihmandarFileConfigService.getApplicationUrl() + "/#!newUser";
 
-        HorizontalLayout hLink = new HorizontalLayout();
-        hLink.addLayoutClickListener(new LayoutEvents.LayoutClickListener() {
+        HorizontalLayout hLinkYeniUye = new HorizontalLayout();
+        hLinkYeniUye.addLayoutClickListener(new LayoutEvents.LayoutClickListener() {
             @Override
             public void layoutClick(LayoutEvents.LayoutClickEvent event) {
                 MihmandarApplication.get().getMihmandarEventbus().post(new MihmandarEvent.UserLoginRequestedEvent(null
-                        , null, true));
+                        , null, true, false));
             }
         });
-        Link link = new Link("Yeni Üye",
+        Link linkYeniUye = new Link("Yeni Üye",
                 new ExternalResource(url));
-        link.addContextClickListener(new ContextClickEvent.ContextClickListener() {
+        hLinkYeniUye.addComponent(linkYeniUye);
+        horizontalLayout.addComponent(hLinkYeniUye);
+
+        HorizontalLayout hLinkYeniSifre = new HorizontalLayout();
+        hLinkYeniSifre.addLayoutClickListener(new LayoutEvents.LayoutClickListener() {
             @Override
-            public void contextClick(ContextClickEvent event) {
-                System.out.println("clicked");
+            public void layoutClick(LayoutEvents.LayoutClickEvent event) {
+                MihmandarApplication.get().getMihmandarEventbus().post(new MihmandarEvent.UserLoginRequestedEvent(null
+                        , null, true, false));
             }
         });
-        hLink.addComponent(link);
-        horizontalLayout.addComponent(hLink);
+        Link linkYeniSifre = new Link("Şifremi Unuttum",
+                new ExternalResource(url));
+        hLinkYeniSifre.addComponent(linkYeniSifre);
 
-        horizontalLayout.setComponentAlignment(checkBox, Alignment.BOTTOM_LEFT);
-        horizontalLayout.setComponentAlignment(hLink, Alignment.BOTTOM_RIGHT);
+        horizontalLayout.setComponentAlignment(rememberMe, Alignment.BOTTOM_LEFT);
+        horizontalLayout.setComponentAlignment(hLinkYeniUye, Alignment.BOTTOM_RIGHT);
+
         loginPanel.addComponent(horizontalLayout);
+        loginPanel.addComponent(hLinkYeniSifre);
+        loginPanel.setComponentAlignment(hLinkYeniSifre, Alignment.BOTTOM_RIGHT);
 
         return loginPanel;
     }
@@ -90,15 +109,15 @@ public class LoginView extends VerticalLayout {
         fields.setSpacing(true);
         fields.addStyleName("fields");
 
-        final TextField username = new TextField("Kullanıcı Adı");
+        username = new TextField("Kullanıcı Adı");
         username.setIcon(FontAwesome.USER);
         username.addStyleName(ValoTheme.TEXTFIELD_INLINE_ICON);
 
-        final PasswordField password = new PasswordField("Şifre");
+        password = new PasswordField("Şifre");
         password.setIcon(FontAwesome.LOCK);
         password.addStyleName(ValoTheme.TEXTFIELD_INLINE_ICON);
 
-        final Button signin = new Button("Giriş");
+       signin = new Button("Giriş");
         signin.addStyleName(ValoTheme.BUTTON_PRIMARY);
         signin.setClickShortcut(KeyCode.ENTER);
         signin.focus();
@@ -109,10 +128,41 @@ public class LoginView extends VerticalLayout {
         signin.addClickListener(new ClickListener() {
             public void buttonClick(ClickEvent event) {
                 MihmandarApplication.get().getMihmandarEventbus().post(new MihmandarEvent.UserLoginRequestedEvent(username
-                        .getValue(), password.getValue(), false));
+                        .getValue(), password.getValue(), false, rememberMe.getValue()));
             }
         });
+
         return fields;
+    }
+
+    private void updateFieldsByCookieInfo() {
+        Cookie authenticationCookie = CookieUtil.getAuthenticationCookie();
+        boolean rememberMeSelected = false;
+        if(authenticationCookie != null){
+            String cookie = authenticationCookie.getValue();
+            try {
+                CookieDto cookieDto = (CookieDto) CookieUtil.deserializeFromString(cookie);
+                String usrName = cookieDto.getUsername() != null ? cookieDto.getUsername() : "";
+                String pass = cookieDto.getPassword() != null ? cookieDto.getPassword() : "";
+                username.setValue(usrName);
+                password.setValue(pass);
+                rememberMeSelected = StringUtils.hasText(usrName);
+                String token = cookieDto.getToken();
+                UserToken userToken = userTokenService.findUserTokenByToken(token);
+                Date expTime = CookieUtil.calculateExpirationDate(userToken);
+                EnumYN state = userToken != null ? userToken.getState() : null;
+                Date now = new Date();
+                if(expTime != null && expTime.compareTo(now) > 0 && EnumYN.Y.equals(state)){
+                    signin.click();
+                }
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+        rememberMe.setValue(rememberMeSelected);
     }
 
     private Component buildLabels() {

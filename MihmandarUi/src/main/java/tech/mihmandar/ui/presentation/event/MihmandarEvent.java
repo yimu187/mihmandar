@@ -1,5 +1,6 @@
 package tech.mihmandar.ui.presentation.event;
 
+import tech.mihmandar.core.common.enums.EnumGender;
 import tech.mihmandar.ui.presentation.view.ViewType;
 
 /**
@@ -9,14 +10,16 @@ public abstract class MihmandarEvent {
 
     public static final class UserLoginRequestedEvent {
         private final String userName, password;
-        private final boolean newUser;
+        private final boolean newUser, rememberMe;
 
         public UserLoginRequestedEvent(final String userName,
                                        final String password,
-                                       final  boolean newUser) {
+                                       final  boolean newUser,
+                                       final boolean rememberMe) {
             this.userName = userName;
             this.password = password;
             this.newUser = newUser;
+            this.rememberMe = rememberMe;
         }
 
         public String getUserName() {
@@ -29,6 +32,10 @@ public abstract class MihmandarEvent {
 
         public boolean isNewUser() {
             return newUser;
+        }
+
+        public boolean isRememberMe() {
+            return rememberMe;
         }
     }
 
@@ -71,5 +78,6 @@ public abstract class MihmandarEvent {
     }
 
     public static class ProfileUpdatedEvent {
+        public ProfileUpdatedEvent() {}
     }
 }

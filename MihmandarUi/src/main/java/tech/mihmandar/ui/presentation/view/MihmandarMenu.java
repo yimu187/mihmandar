@@ -11,7 +11,11 @@ import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.MenuBar.Command;
 import com.vaadin.ui.MenuBar.MenuItem;
 import com.vaadin.ui.themes.ValoTheme;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 import tech.mihmandar.core.common.dto.UserDto;
+import tech.mihmandar.core.data.user.domain.User;
+import tech.mihmandar.core.data.user.service.UserService;
 import tech.mihmandar.ui.presentation.common.MihmandarApplication;
 import tech.mihmandar.ui.presentation.component.ProfilePreferencesWindow;
 import tech.mihmandar.ui.presentation.event.MihmandarEvent;
@@ -23,6 +27,9 @@ import tech.mihmandar.ui.presentation.event.MihmandarEvent;
 @SuppressWarnings({ "serial", "unchecked" })
 public final class MihmandarMenu extends CustomComponent {
 
+    @Autowired
+    UserService userService;
+
     public static final String ID = "dashboard-menu";
     public static final String NOTIFICATIONS_BADGE_ID = "dashboard-menu-notifications-badge";
     private static final String STYLE_VISIBLE = "valo-menu-visible";
@@ -30,6 +37,7 @@ public final class MihmandarMenu extends CustomComponent {
     private MenuItem settingsItem;
 
     public MihmandarMenu() {
+        SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
         setPrimaryStyleName("valo-menu");
         setId(ID);
         setSizeUndefined();
@@ -59,7 +67,7 @@ public final class MihmandarMenu extends CustomComponent {
     }
 
     private Component buildTitle() {
-        Label logo = new Label("Mihmandar <strong>Yazılım</strong>",
+        Label logo = new Label("<strong>Mihmandar Yazılım</strong>",
                 ContentMode.HTML);
         logo.setSizeUndefined();
         HorizontalLayout logoWrapper = new HorizontalLayout(logo);
@@ -80,18 +88,18 @@ public final class MihmandarMenu extends CustomComponent {
         settingsItem = settings.addItem("", new ThemeResource(
                 "img/profile-pic-300px.jpg"), null);
         updateUserName(null);
-        settingsItem.addItem("Edit Profile", new Command() {
+        settingsItem.addItem("Profil", new Command() {
             public void menuSelected(final MenuItem selectedItem) {
                 ProfilePreferencesWindow.open(user, false);
             }
         });
-        settingsItem.addItem("Preferences", new Command() {
+        settingsItem.addItem("Ayarlar", new Command() {
             public void menuSelected(final MenuItem selectedItem) {
                 ProfilePreferencesWindow.open(user, true);
             }
         });
         settingsItem.addSeparator();
-        settingsItem.addItem("Sign Out", new Command() {
+        settingsItem.addItem("Çıkış", new Command() {
             public void menuSelected(final MenuItem selectedItem) {
                 MihmandarApplication.get().getMihmandarEventbus().post(new MihmandarEvent.UserLoggedOutEvent());
             }
@@ -171,8 +179,10 @@ public final class MihmandarMenu extends CustomComponent {
 
     @Subscribe
     public void updateUserName(final MihmandarEvent.ProfileUpdatedEvent event) {
-        UserDto user = getCurrentUser();
-        settingsItem.setText(user.getFirstName() + " " + user.getLastName());
+        UserDto userDto = getCurrentUser();
+        User user = userService.findUserByUsername(userDto.getEmail());
+        userService.updateUserByUserDto(user, userDto);
+        settingsItem.setText(userDto.getFirstName() + " " + userDto.getLastName());
     }
 
     public final class ValoMenuItemButton extends Button {
