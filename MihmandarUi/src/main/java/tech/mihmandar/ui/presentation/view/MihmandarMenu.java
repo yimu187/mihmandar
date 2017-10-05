@@ -195,8 +195,7 @@ public final class MihmandarMenu extends CustomComponent {
             this.view = view;
             setPrimaryStyleName("valo-menu-item");
             setIcon(view.getIcon());
-            setCaption(view.getViewName().substring(0, 1).toUpperCase()
-                    + view.getViewName().substring(1));
+            setCaption(view.getName());
             MihmandarApplication.get().getMihmandarEventbus().register(this);
             addClickListener(new ClickListener() {
                 public void buttonClick(final ClickEvent event) {

@@ -3,28 +3,28 @@ package tech.mihmandar.ui.presentation.view;
 import com.vaadin.navigator.View;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.server.Resource;
+import com.vaadin.server.ThemeResource;
 
 public enum ViewType {
-    MIHMANDAR_HOME("Derle", MihmandarView.class, FontAwesome.COMPASS, true)
+    MIHMANDAR_HOME("Derle", MihmandarView.class, getCompileIcon(), true, "Derle"),
+    MIHMANDAR_TRAINING("Egitim", MihmandarEskiView.class, getPencilIcon(), true, "Eğitim")
 
-//    , SALES("sales", SalesView.class, FontAwesome.BAR_CHART_O, false)
-//    , TRANSACTIONS("transactions", TransactionsView.class, FontAwesome.TABLE, false)
-//    , REPORTS("reports", ReportsView.class, FontAwesome.FILE_TEXT_O, true)
-//    , SCHEDULE("schedule", ScheduleView.class, FontAwesome.CALENDAR_O, false)
     ;
 
     private final String viewName;
     private final Class<? extends View> viewClass;
     private final Resource icon;
     private final boolean stateful;
+    private final String name;
 
     ViewType(final String viewName,
                      final Class<? extends View> viewClass, final Resource icon,
-                     final boolean stateful) {
+                     final boolean stateful, String name) {
         this.viewName = viewName;
         this.viewClass = viewClass;
         this.icon = icon;
         this.stateful = stateful;
+        this.name = name;
     }
 
     public boolean isStateful() {
@@ -35,12 +35,24 @@ public enum ViewType {
         return viewName;
     }
 
+    public String getName() {
+        return name;
+    }
+
     public Class<? extends View> getViewClass() {
         return viewClass;
     }
 
     public Resource getIcon() {
         return icon;
+    }
+
+    private static Resource getPencilIcon() {
+        return new ThemeResource("img/student-glasses.png");
+    }
+
+    private static Resource getCompileIcon() {
+        return new ThemeResource("img/compile.png");
     }
 
     public static ViewType getByViewName(final String viewName) {
