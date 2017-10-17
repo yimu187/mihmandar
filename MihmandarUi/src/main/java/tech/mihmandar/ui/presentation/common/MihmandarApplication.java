@@ -16,6 +16,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 import tech.mihmandar.core.common.dto.UserDto;
+import tech.mihmandar.core.common.enums.EnumSoftwareLanguages;
 import tech.mihmandar.core.common.enums.EnumYN;
 import tech.mihmandar.core.data.user.domain.User;
 import tech.mihmandar.core.data.user.domain.UserToken;
@@ -54,6 +55,8 @@ public class MihmandarApplication extends UI {
     @Autowired
     private ApplicationContext applicationContext;
 
+    private EnumSoftwareLanguages language;
+
     private final MihmandarEventBus mihmandarEventbus = new MihmandarEventBus();
 
 
@@ -77,14 +80,16 @@ public class MihmandarApplication extends UI {
         MihmandarEventBus.register(this);
         Responsive.makeResponsive(this);
         addStyleName(ValoTheme.UI_WITH_MENU);
-
         updateContent(false, null);
 
         Page.getCurrent().addBrowserWindowResizeListener(
                 new Page.BrowserWindowResizeListener() {
                     public void browserWindowResized(
                             final Page.BrowserWindowResizeEvent event) {
-                        MihmandarEventBus.post(new MihmandarEvent.BrowserResizeEvent());
+                        int browserWindowWidth = MihmandarApplication.get().getPage().getBrowserWindowWidth();
+                        int browserWindowHeight = MihmandarApplication.get().getPage().getBrowserWindowHeight();
+
+                        MihmandarEventBus.post(new MihmandarEvent.BrowserResizeEvent(browserWindowHeight, browserWindowWidth));
                     }
                 });
     }
@@ -243,5 +248,13 @@ public class MihmandarApplication extends UI {
         for (Window window : getWindows()) {
             window.close();
         }
+    }
+
+    public EnumSoftwareLanguages getLanguage() {
+        return language;
+    }
+
+    public void setLanguage(EnumSoftwareLanguages language) {
+        this.language = language;
     }
 }

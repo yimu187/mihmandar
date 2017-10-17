@@ -11480,6 +11480,14 @@ div.v-layout.v-horizontal.v-widget {
 	background: cornsilk;
 }
 
+.mytheme .panel-toolbar[width-range~="0-900px"] {
+	font-size: 10px;
+}
+
+.mytheme .panel-toolbar[width-range~="901px-"] {
+	font-size: 10px;
+}
+
 .mytheme .panel-content {
 	height: 100%;
 	overflow: hidden;
@@ -11492,4 +11500,20 @@ div.v-layout.v-horizontal.v-widget {
 
 .mytheme .header-title-label {
 	color: red;
+}
+
+.mytheme .m-view-content .m-view-content[width-range~="0-499px"] .notes {
+	width: 100%;
+}
+
+.mytheme .m-view-content .m-view-content[width-range~="500px-"] .notes {
+	width: 50%;
+}
+
+.mytheme .m-view-content .m-view-content[width-range~="0-499px"] .editor {
+	width: 100%;
+}
+
+.mytheme .m-view-content .m-view-content[width-range~="500px-"] .editor {
+	width: 50%;
 }

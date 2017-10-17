@@ -135,12 +135,12 @@
             <artifactId>aceeditor</artifactId>
             <version>0.8.14</version>
         </dependency>
+
         <!-- Vaadin dependencies-->
 
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
-            <version>2.4</version>
         </dependency>
 
         <!--Spring dependencies-->
@@ -203,6 +203,11 @@
         <dependency>
             <groupId>org.vaadin.addons</groupId>
             <artifactId>googleanalyticstracker</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.vaadin.alump.lazylayouts</groupId>
+            <artifactId>lazylayouts-addon</artifactId>
         </dependency>
 
     </dependencies>

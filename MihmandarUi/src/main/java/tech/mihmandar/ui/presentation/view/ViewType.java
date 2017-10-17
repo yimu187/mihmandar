@@ -1,13 +1,12 @@
 package tech.mihmandar.ui.presentation.view;
 
 import com.vaadin.navigator.View;
-import com.vaadin.server.FontAwesome;
 import com.vaadin.server.Resource;
 import com.vaadin.server.ThemeResource;
 
 public enum ViewType {
     MIHMANDAR_HOME("Derle", MihmandarView.class, getCompileIcon(), true, "Derle"),
-    MIHMANDAR_TRAINING("Egitim", MihmandarEskiView.class, getPencilIcon(), true, "Eğitim")
+    MIHMANDAR_TRAINING("Egitim", MihmandarTrainingView.class, getPencilIcon(), true, "Eğitim")
 
     ;
 

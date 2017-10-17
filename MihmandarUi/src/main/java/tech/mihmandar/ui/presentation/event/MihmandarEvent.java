@@ -1,6 +1,7 @@
 package tech.mihmandar.ui.presentation.event;
 
 import tech.mihmandar.core.common.enums.EnumGender;
+import tech.mihmandar.core.common.enums.EnumSoftwareLanguages;
 import tech.mihmandar.ui.presentation.view.ViewType;
 
 /**
@@ -40,7 +41,21 @@ public abstract class MihmandarEvent {
     }
 
     public static class BrowserResizeEvent {
+        final int height;
+        final int width;
 
+        public BrowserResizeEvent(int height, int width) {
+            this.height = height;
+            this.width = width;
+        }
+
+        public int getHeight() {
+            return height;
+        }
+
+        public int getWidth() {
+            return width;
+        }
     }
 
     public static class UserLoggedOutEvent {
@@ -50,18 +65,6 @@ public abstract class MihmandarEvent {
     public static class NotificationsCountUpdatedEvent {
     }
 
-//    public static final class TransactionReportEvent {
-//        private final Collection<Transaction> transactions;
-//
-//        public TransactionReportEvent(final Collection<Transaction> transactions) {
-//            this.transactions = transactions;
-//        }
-//
-//        public Collection<Transaction> getTransactions() {
-//            return transactions;
-//        }
-//    }
-//
     public static final class PostViewChangeEvent {
         private final ViewType view;
 
@@ -79,5 +82,16 @@ public abstract class MihmandarEvent {
 
     public static class ProfileUpdatedEvent {
         public ProfileUpdatedEvent() {}
+    }
+
+    public static class SoftwareLanguageChagedEvent {
+        private EnumSoftwareLanguages softwareLanguage;
+        public SoftwareLanguageChagedEvent(EnumSoftwareLanguages softwareLanguage) {
+            this.softwareLanguage = softwareLanguage;
+        }
+
+        public EnumSoftwareLanguages getSoftwareLanguage() {
+            return softwareLanguage;
+        }
     }
 }

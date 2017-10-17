@@ -4,6 +4,7 @@ import com.vaadin.navigator.Navigator;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.navigator.ViewProvider;
+import com.vaadin.server.Page;
 import com.vaadin.ui.ComponentContainer;
 import com.vaadin.ui.UI;
 import org.vaadin.googleanalytics.tracking.GoogleAnalyticsTracker;
@@ -56,7 +57,10 @@ public class DashboardNavigator extends Navigator {
                         .getViewName());
                 // Appropriate events get fired after the view is changed.
                 MihmandarApplication.get().getMihmandarEventbus().post(new MihmandarEvent.PostViewChangeEvent(view));
-                MihmandarApplication.get().getMihmandarEventbus().post(new MihmandarEvent.BrowserResizeEvent());
+                int browserWindowWidth = MihmandarApplication.get().getPage().getBrowserWindowWidth();
+                int browserWindowHeight = MihmandarApplication.get().getPage().getBrowserWindowHeight();
+
+                MihmandarApplication.get().getMihmandarEventbus().post(new MihmandarEvent.BrowserResizeEvent(browserWindowHeight, browserWindowWidth));
                 MihmandarApplication.get().getMihmandarEventbus().post(new MihmandarEvent.CloseOpenWindowsEvent());
 
                 if (tracker != null) {

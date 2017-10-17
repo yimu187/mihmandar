@@ -1,36 +1,37 @@
 package tech.mihmandar.ui.presentation.view;
 
+import com.google.common.eventbus.Subscribe;
 import com.vaadin.event.LayoutEvents.LayoutClickEvent;
 import com.vaadin.event.LayoutEvents.LayoutClickListener;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.server.Responsive;
+import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
-import org.apache.commons.io.FileUtils;
 import org.vaadin.aceeditor.AceEditor;
 import org.vaadin.aceeditor.AceMode;
 import org.vaadin.aceeditor.AceTheme;
+import tech.mihmandar.core.common.enums.EnumSoftwareLanguages;
 import tech.mihmandar.ui.presentation.common.MihPanel;
 import tech.mihmandar.ui.presentation.common.MihmandarApplication;
 import tech.mihmandar.ui.presentation.component.HeaderComponent;
 import tech.mihmandar.ui.presentation.event.MihmandarEvent;
-
-import javax.tools.*;
-import java.io.File;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
+import tech.mihmandar.ui.presentation.util.UiUtil;
+import tech.mihmandar.ui.presentation.window.MihmandarAddProcessWindow;
+import tech.mihmandar.utility.compiler.JavaCompilerUtil;
+import tech.mihmandar.utility.dto.CompileResultDto;
 
 @SuppressWarnings("serial")
 public final class MihmandarView extends Panel implements View{
 
     private HorizontalLayout content;
+    private VerticalLayout contentV;
     private final VerticalLayout mainLayout;
+    private HeaderComponent headerComponent;
     private AceEditor aceEditor;
+    private Label description;
 
     public MihmandarView() {
         setSizeFull();
@@ -40,13 +41,26 @@ public final class MihmandarView extends Panel implements View{
         mainLayout.setSizeFull();
         setContent(mainLayout);
         Responsive.makeResponsive(mainLayout);
-        HeaderComponent headerComponent = new HeaderComponent();
+        headerComponent = new HeaderComponent();
+
+        Button addNewTraining = new Button();
+        addNewTraining.setIcon(FontAwesome.EDIT);
+        addNewTraining.addStyleName("icon-edit");
+        addNewTraining.addStyleName(ValoTheme.BUTTON_ICON_ONLY);
+        addNewTraining.setDescription("Edit Dashboard");
+        addNewTraining.addClickListener(new Button.ClickListener() {
+            @Override
+            public void buttonClick(final Button.ClickEvent event) {
+
+                addWindow();
+            }
+        });
+
+        headerComponent.addComponentToTools(addNewTraining);
         mainLayout.addComponent(headerComponent);
 
-        Component content = buildContent();
-        mainLayout.addComponent(content);
-        mainLayout.setExpandRatio(headerComponent, 1);
-        mainLayout.setExpandRatio(content, 15);
+        int browserWindowWidth = MihmandarApplication.get().getPage().getBrowserWindowWidth();
+        buildContentByWidth(browserWindowWidth);
 
         // All the open sub-windows should be closed whenever the root layout
         // gets clicked.
@@ -58,22 +72,49 @@ public final class MihmandarView extends Panel implements View{
         });
     }
 
+    private void addWindow() {
+        MihmandarAddProcessWindow window = new MihmandarAddProcessWindow();
+        MihmandarApplication.get().addWindow(window);
+    }
 
-    private Component buildContent() {
-        content = new HorizontalLayout();
+    private void buildContentByWidth(int browserWindowWidth) {
+        mainLayout.removeAllComponents();
+        if(browserWindowWidth >= 700){
+            mainLayout.addComponent(headerComponent);
+            content = new HorizontalLayout();
+            content = (HorizontalLayout) buildContent(content);
+            mainLayout.addComponent(content);
+            mainLayout.setExpandRatio(headerComponent, 1);
+            mainLayout.setExpandRatio(content, 15);
+        }else{
+            mainLayout.removeAllComponents();
+            mainLayout.addComponent(headerComponent);
+            contentV = new VerticalLayout();
+            contentV = (VerticalLayout) buildContent(contentV);
+            mainLayout.addComponent(contentV);
+            mainLayout.setExpandRatio(headerComponent, 1);
+            mainLayout.setExpandRatio(contentV, 15);
+
+        }
+    }
+
+    private AbstractOrderedLayout buildContent(AbstractOrderedLayout content) {
         content.setSizeFull();
+        content.addStyleName("m-view-content");
         content.setSpacing(true);
         Responsive.makeResponsive(content);
 
-        TextArea notes = new TextArea();
-        notes.setHeight(600, Unit.PIXELS);
-        notes.setSizeFull();
-        notes.setValue("Test derlemesi için aşağıdaki kodu  yan taraftaki editörü kullanabilirsiniz:\n class HelloWorldApp {\n\t public static void main(String[] args) {\n\t\t System.out.println(\"Hello World!\"); // Display the string.\n\t } \n }");
-        notes.setSizeFull();
-        notes.addStyleName(ValoTheme.TEXTAREA_BORDERLESS);
-        MihPanel notesPanel = new MihPanel("Notes");
-        notesPanel.addComponent(notes);
-        notesPanel.setHeight(650, Unit.PIXELS);
+        description = new Label();
+        description.setContentMode(ContentMode.HTML);
+        description.setHeight(100, Unit.PERCENTAGE);
+        description.setSizeFull();
+        description.setValue("<strong>Test derlemesi için aşağıdaki kodu  yan taraftaki editörü kullanabilirsiniz:<br> class HelloWorldApp {<br>&nbsp public static void main(String[] args) {<br>&nbsp&nbsp System.out.println(\"Hello World!\"); // Display the string.<br>&nbsp } <br> }<strong>");
+        description.setSizeFull();
+        description.addStyleName(ValoTheme.TEXTAREA_BORDERLESS);
+        MihPanel notesPanel = new MihPanel("Açıklama");
+        notesPanel.addStyleName("notes");
+        notesPanel.addComponent(description);
+        notesPanel.setHeight(100, Unit.PERCENTAGE);
         content.addComponent(notesPanel);
 
         aceEditor = new AceEditor();
@@ -83,12 +124,14 @@ public final class MihmandarView extends Panel implements View{
         aceEditor.setSizeFull();
         aceEditor.setTheme(AceTheme.terminal);
         MihPanel panelEditor = new MihPanel("Editör");
-        panelEditor.setHeight(650, Unit.PIXELS);
+        panelEditor.addStyleName("editor");
+        panelEditor.setHeight(100, Unit.PERCENTAGE);
         panelEditor.addComponent(aceEditor);
         panelEditor.addMenuToHeader("Derle", FontAwesome.PAINT_BRUSH, new MenuBar.Command() {
             @Override
             public void menuSelected(MenuBar.MenuItem selectedItem) {
-                doCompile();
+                String value = aceEditor.getValue();
+                UiUtil.doCompile(value);
             }
         });
         content.addComponent(panelEditor);
@@ -98,47 +141,31 @@ public final class MihmandarView extends Panel implements View{
         return content;
     }
 
-    private void doCompile() {
-        String value = aceEditor.getValue();
-
-        List<Diagnostic<? extends JavaFileObject>> diagnostics = Collections.emptyList();
-        try {
-            Random random = new Random();
-            long i = random.nextInt(1000);
-            String next = String.valueOf(i);
-            String sourceFilePath = System.getProperty("java.io.tmpdir") + File.separator + "file" + next + ".java";
-            File file = new File(sourceFilePath);
-            file.createNewFile();
-            FileUtils.writeByteArrayToFile(file, value.getBytes());
-
-            JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-
-            DiagnosticCollector<JavaFileObject> diagnosticsCollector = new DiagnosticCollector<JavaFileObject>();
-            StandardJavaFileManager fileManager = compiler.getStandardFileManager(diagnosticsCollector, null, null);
-            Iterable<? extends JavaFileObject> compilationUnits = fileManager.getJavaFileObjectsFromStrings(Arrays.asList(sourceFilePath));
-            JavaCompiler.CompilationTask task = compiler.getTask(null, fileManager, diagnosticsCollector, null, null, compilationUnits);
-            boolean success = task.call();
-            if (!success) {
-                diagnostics = diagnosticsCollector.getDiagnostics();
-            }
-            fileManager.close();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        if(diagnostics.isEmpty()){
-            Notification.show("Derleme Başarılı", Notification.Type.HUMANIZED_MESSAGE);
-        }else{
-            String errors  = "";
-            for (Diagnostic<? extends JavaFileObject> diagnostic : diagnostics) {
-                errors += " " + diagnostic.getMessage(null);
-            }
-            Notification.show("Derleme Hatası" + errors, Notification.Type.HUMANIZED_MESSAGE);
-        }
-    }
-
     @Override
     public void enter(final ViewChangeEvent event) {
+    }
+
+    @Subscribe
+    public void resize(final MihmandarEvent.BrowserResizeEvent event) {
+        int width = event.getWidth();
+        buildContentByWidth(width);
+    }
+
+    @Subscribe
+    public void softwareLanguageChanged(final MihmandarEvent.SoftwareLanguageChagedEvent event) {
+        EnumSoftwareLanguages softwareLanguage = event.getSoftwareLanguage();
+        switch (softwareLanguage){
+            case Python:{
+                description.setValue("<strong>Test derlemesi için aşağıdaki kodu  yan taraftaki editörü kullanabilirsiniz:<br> &nbsp print(\"Hello World.\") <strong>");
+                aceEditor.setMode(AceMode.python);
+                break;
+            }
+            case JAVA:
+            default:{
+                aceEditor.setMode(AceMode.java);
+                description.setValue("<strong>Test derlemesi için aşağıdaki kodu  yan taraftaki editörü kullanabilirsiniz:<br> class HelloWorldApp {<br>&nbsp public static void main(String[] args) {<br>&nbsp&nbsp System.out.println(\"Hello World!\"); // Display the string.<br>&nbsp } <br> }<strong>");
+                break;
+            }
+        }
     }
 }

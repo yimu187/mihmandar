@@ -8,7 +8,6 @@ public enum EnumYN {
     Y("Yes"),
     N("No");
 
-
     private String type;
 
     EnumYN(String type) {

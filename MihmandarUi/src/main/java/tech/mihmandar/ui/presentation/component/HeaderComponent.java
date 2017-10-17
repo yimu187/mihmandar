@@ -5,6 +5,10 @@ import com.vaadin.server.FontAwesome;
 import com.vaadin.server.ThemeResource;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
+import tech.mihmandar.core.common.enums.EnumSoftwareLanguages;
+import tech.mihmandar.ui.presentation.common.MihmandarApplication;
+import tech.mihmandar.ui.presentation.event.MihmandarEvent;
+import tech.mihmandar.ui.presentation.event.MihmandarEventBus;
 
 /**
  * Created by Murat on 10/5/2017.
@@ -15,6 +19,8 @@ public class HeaderComponent extends CustomComponent {
     private Button imageJava;
     private Button imagePython;
     private HorizontalLayout titleImageLayout;
+    private HorizontalLayout tools;
+    private ComboBox progLanguages;
 
     public HeaderComponent() {
         HorizontalLayout header = new HorizontalLayout();
@@ -35,39 +41,42 @@ public class HeaderComponent extends CustomComponent {
 
         imageJava = new Button();
         imageJava.setIcon(new ThemeResource("img/java.png"));
-        imageJava.addStyleName("icon-edit");
+        imageJava.addStyleName(ValoTheme.BUTTON_ICON_ONLY);
 
         imagePython = new Button();
         imagePython.setIcon(new ThemeResource("img/python.png"));
-        imagePython.addStyleName("icon-edit");
+        imagePython.addStyleName(ValoTheme.BUTTON_ICON_ONLY);
 
         image = imageJava;
 
         titleImageLayout.addComponent(image);
 
-        Component edit = buildEditButton();
-        ComboBox progLanguages = new ComboBox();
+        progLanguages = new ComboBox();
         progLanguages.setNullSelectionAllowed(false);
-        progLanguages.addItem("Java");
-        progLanguages.addItem("Python");
-        progLanguages.setValue("Java");
+        EnumSoftwareLanguages[] values = EnumSoftwareLanguages.values();
+        progLanguages.addItems(values);
+        EnumSoftwareLanguages selectedLanguage = MihmandarApplication.get().getLanguage();
+        EnumSoftwareLanguages language = selectedLanguage != null ? selectedLanguage : EnumSoftwareLanguages.JAVA;
         progLanguages.addValueChangeListener(new Property.ValueChangeListener() {
             @Override
             public void valueChange(Property.ValueChangeEvent event) {
-                Object value = event.getProperty().getValue();
+                EnumSoftwareLanguages value = (EnumSoftwareLanguages)event.getProperty().getValue();
                 titleLabel.setValue(value.toString());
                 titleImageLayout.removeAllComponents();
-                if(value.equals("Java")){
+                if(EnumSoftwareLanguages.JAVA.equals(value)){
                     image = imageJava;
                 }else{
                     image = imagePython;
                 }
                 titleImageLayout.addComponent(titleLabel);
                 titleImageLayout.addComponent(image);
+                MihmandarApplication.get().setLanguage(value);
+                MihmandarApplication.get().getMihmandarEventbus().post(new MihmandarEvent.SoftwareLanguageChagedEvent(value));
             }
         });
+        progLanguages.setValue(language);
 
-        HorizontalLayout tools = new HorizontalLayout(edit, progLanguages);
+        tools = new HorizontalLayout(progLanguages);
         tools.setSpacing(true);
         tools.addStyleName("toolbar");
         header.addComponent(tools);
@@ -77,17 +86,11 @@ public class HeaderComponent extends CustomComponent {
         setCompositionRoot(header);
     }
 
-    private Component buildEditButton() {
-        Button result = new Button();
-        result.setIcon(FontAwesome.EDIT);
-        result.addStyleName("icon-edit");
-        result.addStyleName(ValoTheme.BUTTON_ICON_ONLY);
-        result.setDescription("Edit Dashboard");
-        result.addClickListener(new Button.ClickListener() {
-            @Override
-            public void buttonClick(final Button.ClickEvent event) {
-            }
-        });
-        return result;
+    public void addComponentToTools(Component component){
+        tools.addComponentAsFirst(component);
+    }
+
+    public void setLanguageComboEnabled(boolean enabled){
+        progLanguages.setEnabled(enabled);
     }
 }

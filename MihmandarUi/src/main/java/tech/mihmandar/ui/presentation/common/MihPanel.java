@@ -2,6 +2,7 @@ package tech.mihmandar.ui.presentation.common;
 
 import com.vaadin.server.FontAwesome;
 import com.vaadin.server.Resource;
+import com.vaadin.server.Sizeable;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
 
@@ -14,6 +15,7 @@ public class MihPanel extends Panel {
 
     private VerticalLayout panelLayout;
     private VerticalLayout content;
+    private HorizontalLayout toolbar;
     private Label captionLabel;
     private MenuBar tools;
     private MenuBar.MenuItem max;
@@ -28,7 +30,7 @@ public class MihPanel extends Panel {
         content.addStyleName("panel-content");
         content.setSizeFull();
 
-        HorizontalLayout toolbar = new HorizontalLayout();
+        toolbar = new HorizontalLayout();
         toolbar.addStyleName("panel-toolbar");
         toolbar.setWidth("100%");
 
@@ -66,7 +68,7 @@ public class MihPanel extends Panel {
         panelLayout.addComponent(content);
 
         panelLayout.setExpandRatio(toolbar, 1f);
-        panelLayout.setExpandRatio(content, 10f);
+        panelLayout.setExpandRatio(content, 15f);
 
         this.setContent(panelLayout);
 
@@ -83,12 +85,21 @@ public class MihPanel extends Panel {
 
     public void doPanelShowHideAction(){
         boolean visible = content.isVisible();
+        panelLayout.removeAllComponents();
         if(visible){
             content.setVisible(false);
             showHide.setIcon(FontAwesome.CARET_UP);
+
+            panelLayout.addComponent(toolbar);
         }else{
             content.setVisible(true);
             showHide.setIcon(FontAwesome.CARET_DOWN);
+
+            panelLayout.addComponent(toolbar);
+            panelLayout.addComponent(content);
+
+            panelLayout.setExpandRatio(toolbar, 1f);
+            panelLayout.setExpandRatio(content, 15f);
         }
     }
 
@@ -111,4 +122,35 @@ public class MihPanel extends Panel {
         }
     }
 
+    @Override
+    public void setHeight(float height, Unit unit) {
+        super.setHeight(height, unit);
+        if(content != null){
+            content.setHeight(height, unit);
+        }
+    }
+
+    @Override
+    public void setHeight(String height) {
+        super.setHeight(height);
+        if(content != null){
+            content.setHeight(height);
+        }
+    }
+
+    @Override
+    public void setWidth(float width, Unit unit) {
+        super.setWidth(width, unit);
+        if(content != null){
+            content.setWidth(width, unit);
+        }
+    }
+
+    @Override
+    public void setWidth(String width) {
+        super.setWidth(width);
+        if(content != null){
+            content.setWidth(width);
+        }
+    }
 }

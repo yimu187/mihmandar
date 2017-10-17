@@ -224,6 +224,13 @@
                 <version>3.2.5.RELEASE</version>
             </dependency>
 
+            <dependency>
+                <groupId>org.vaadin.alump.lazylayouts</groupId>
+                <artifactId>lazylayouts-addon</artifactId>
+                <version>0.1.4</version>
+            </dependency>
+
+
         </dependencies>
     </dependencyManagement>
 

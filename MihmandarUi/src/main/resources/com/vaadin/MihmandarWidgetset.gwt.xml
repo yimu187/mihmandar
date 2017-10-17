@@ -6,4 +6,6 @@
 
     <inherits name="org.vaadin.aceeditor.AceEditorWidgetSet" />
 
+    <inherits name="org.vaadin.alump.lazylayouts.LazyLayoutsWidgetSet" />
+
 </module>
