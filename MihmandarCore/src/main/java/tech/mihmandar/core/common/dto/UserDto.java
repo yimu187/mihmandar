@@ -8,7 +8,7 @@ import tech.mihmandar.core.common.enums.EnumGender;
 public class UserDto {
     private static final long serialVersionUID = 1L;
 
-    private String role;
+    private Long userId;
     private String firstName;
     private String lastName;
     private String title;
@@ -21,14 +21,6 @@ public class UserDto {
 
     public static long getSerialVersionUID() {
         return serialVersionUID;
-    }
-
-    public String getRole() {
-        return role;
-    }
-
-    public void setRole(String role) {
-        this.role = role;
     }
 
     public String getFirstName() {
@@ -101,5 +93,13 @@ public class UserDto {
 
     public void setBio(String bio) {
         this.bio = bio;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 }

@@ -5,7 +5,8 @@ package tech.mihmandar.core.common.enums;
  */
 public enum EnumAccessType {
     PUBLIC("Genel"),
-    PRIVATE("Özel");
+    PRIVATE("Özel"),
+    SECRET("Gizli");
 
     private String type;
 

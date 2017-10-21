@@ -4,11 +4,14 @@ import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
+import tech.mihmandar.core.common.dto.UserDto;
 import tech.mihmandar.core.common.enums.EnumAccessType;
 import tech.mihmandar.core.common.enums.EnumProcessType;
 import tech.mihmandar.core.common.enums.EnumSoftwareLanguages;
 import tech.mihmandar.core.data.training.domain.Training;
 import tech.mihmandar.core.data.training.service.TrainingService;
+import tech.mihmandar.core.data.user.domain.User;
+import tech.mihmandar.core.data.user.service.UserService;
 import tech.mihmandar.ui.presentation.common.MihmandarApplication;
 
 /**
@@ -18,6 +21,9 @@ public class MihmandarAddProcessWindow extends Window {
 
     @Autowired
     TrainingService trainingService;
+
+    @Autowired
+    UserService userService;
 
     private VerticalLayout windowLayout;
     private TextField name;
@@ -80,6 +86,9 @@ public class MihmandarAddProcessWindow extends Window {
         btnOk.addStyleName(ValoTheme.BUTTON_SMALL);
         btnOk.addClickListener((Button.ClickListener) event1 -> {
             Training training = new Training();
+            UserDto userDto = MihmandarApplication.get().getUserDto();
+            User user = userService.findById(userDto.getUserId());
+            training.setUser(user);
             training.setName(name.getValue());
             training.setDescription(description.getValue());
             EnumSoftwareLanguages language = MihmandarApplication.get().getLanguage();

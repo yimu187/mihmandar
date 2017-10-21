@@ -257,4 +257,9 @@ public class MihmandarApplication extends UI {
     public void setLanguage(EnumSoftwareLanguages language) {
         this.language = language;
     }
+
+    public UserDto getUserDto(){
+        UserDto userDto = (UserDto)VaadinSession.getCurrent().getAttribute(UserDto.class.getName());
+        return userDto;
+    }
 }

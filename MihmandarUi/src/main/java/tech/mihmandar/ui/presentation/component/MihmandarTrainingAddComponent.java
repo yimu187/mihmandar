@@ -15,7 +15,6 @@ import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 import org.vaadin.aceeditor.AceEditor;
 import org.vaadin.aceeditor.AceMode;
 import org.vaadin.aceeditor.AceTheme;
-import sun.plugin.util.UIUtil;
 import tech.mihmandar.core.common.enums.EnumAccessType;
 import tech.mihmandar.core.common.enums.EnumProcessType;
 import tech.mihmandar.core.common.enums.EnumSoftwareLanguages;
@@ -29,8 +28,7 @@ import tech.mihmandar.ui.presentation.common.MihPanel;
 import tech.mihmandar.ui.presentation.common.MihmandarApplication;
 import tech.mihmandar.ui.presentation.event.MihmandarEvent;
 import tech.mihmandar.ui.presentation.util.UiUtil;
-import tech.mihmandar.utility.compiler.JavaCompilerUtil;
-import tech.mihmandar.utility.dto.CompileResultDto;
+import tech.mihmandar.ui.presentation.view.ViewType;
 
 import java.util.List;
 
@@ -100,6 +98,16 @@ public class MihmandarTrainingAddComponent extends CustomComponent {
                     training.setDescription(description.getValue());
                     trainingService.save(training);
                     UiUtil.displaySuccessNotification();
+                }
+            }
+        });
+        fieldsPanel.addMenuToHeader("Sil", FontAwesome.REMOVE, new MenuBar.Command() {
+            @Override
+            public void menuSelected(MenuBar.MenuItem selectedItem) {
+                if(trainingId != null){
+                    Training training = trainingService.findById(trainingId);
+                    trainingService.delete(training);
+                    MihmandarApplication.get().getNavigator().navigateTo(ViewType.MIHMANDAR_TRAINING.getName());
                 }
             }
         });

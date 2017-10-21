@@ -2,7 +2,6 @@ package tech.mihmandar.ui.presentation.common;
 
 import com.vaadin.server.FontAwesome;
 import com.vaadin.server.Resource;
-import com.vaadin.server.Sizeable;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
 
@@ -22,6 +21,8 @@ public class MihPanel extends Panel {
     private MenuBar.MenuItem showHide;
 
     public MihPanel(String captionValue) {
+
+        setSizeFull();
 
         panelLayout = new VerticalLayout();
         panelLayout.setSizeFull();
@@ -54,6 +55,7 @@ public class MihPanel extends Panel {
         });
 
         max.setStyleName("icon-only");
+        max.setDescription("Tam Ekran Yap / Küçült");
         showHide = tools.addItem("", FontAwesome.CARET_DOWN, (MenuBar.Command) selectedItem -> {
             doPanelShowHideAction();
         });
@@ -71,7 +73,6 @@ public class MihPanel extends Panel {
         panelLayout.setExpandRatio(content, 15f);
 
         this.setContent(panelLayout);
-
     }
 
     public MihPanel() {

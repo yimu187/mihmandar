@@ -4,7 +4,6 @@ import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.server.Responsive;
 import com.vaadin.ui.CustomComponent;
-import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
@@ -55,10 +54,7 @@ public final class MihmandarTrainingView extends CustomComponent implements View
             addTrainingComponent.fillWithTraingId(trainingId);
             mainLayout.addComponent(addTrainingComponent);
         }else{
-            mainLayout.addComponent(new Label("Arama sayfası"));
+            mainLayout.addComponent(trainingSearchComponent);
         }
-
-
     }
-
 }

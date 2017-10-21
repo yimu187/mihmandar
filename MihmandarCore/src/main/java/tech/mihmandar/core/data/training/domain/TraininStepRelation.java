@@ -2,10 +2,10 @@ package tech.mihmandar.core.data.training.domain;
 
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.envers.Audited;
 import tech.mihmandar.core.common.entity.BaseEntity;
-import tech.mihmandar.core.data.training.service.TrainingService;
-import tech.mihmandar.core.data.user.domain.User;
 
 import javax.persistence.*;
 
@@ -28,6 +28,7 @@ public class TraininStepRelation extends BaseEntity {
     @Version
     private long versiyon;
 
+    @OnDelete(action = OnDeleteAction.CASCADE)
     @Index(name = "IX_TRAINING_RELATION_TRAINING")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ID_TRAINING")
@@ -35,6 +36,7 @@ public class TraininStepRelation extends BaseEntity {
     private Training training;
 
 
+    @OnDelete(action = OnDeleteAction.CASCADE)
     @Index(name = "IX_TRAINING_STEP_RELATION")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ID_TRAINING_STEP")
