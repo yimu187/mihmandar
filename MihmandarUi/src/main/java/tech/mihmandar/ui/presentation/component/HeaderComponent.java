@@ -1,14 +1,12 @@
 package tech.mihmandar.ui.presentation.component;
 
 import com.vaadin.data.Property;
-import com.vaadin.server.FontAwesome;
 import com.vaadin.server.ThemeResource;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
 import tech.mihmandar.core.common.enums.EnumSoftwareLanguages;
 import tech.mihmandar.ui.presentation.common.MihmandarApplication;
 import tech.mihmandar.ui.presentation.event.MihmandarEvent;
-import tech.mihmandar.ui.presentation.event.MihmandarEventBus;
 
 /**
  * Created by Murat on 10/5/2017.

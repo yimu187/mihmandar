@@ -34,8 +34,8 @@ public class MihPanel extends Panel {
         toolbar = new HorizontalLayout();
         toolbar.addStyleName("panel-toolbar");
         toolbar.setWidth("100%");
-
         captionLabel = new Label(captionValue);
+
         captionLabel.addStyleName(ValoTheme.LABEL_H4);
         captionLabel.addStyleName(ValoTheme.LABEL_COLORED);
         captionLabel.addStyleName(ValoTheme.LABEL_NO_MARGIN);
@@ -87,21 +87,7 @@ public class MihPanel extends Panel {
     public void doPanelShowHideAction(){
         boolean visible = content.isVisible();
         panelLayout.removeAllComponents();
-        if(visible){
-            content.setVisible(false);
-            showHide.setIcon(FontAwesome.CARET_UP);
-
-            panelLayout.addComponent(toolbar);
-        }else{
-            content.setVisible(true);
-            showHide.setIcon(FontAwesome.CARET_DOWN);
-
-            panelLayout.addComponent(toolbar);
-            panelLayout.addComponent(content);
-
-            panelLayout.setExpandRatio(toolbar, 1f);
-            panelLayout.setExpandRatio(content, 15f);
-        }
+        setCollapsed(visible);
     }
 
     public void addMenuToHeader(String description, Resource icon, MenuBar.Command command){
@@ -152,6 +138,24 @@ public class MihPanel extends Panel {
         super.setWidth(width);
         if(content != null){
             content.setWidth(width);
+        }
+    }
+
+    public void setCollapsed(boolean collapsed){
+        if(collapsed){
+            content.setVisible(false);
+            showHide.setIcon(FontAwesome.CARET_UP);
+
+            panelLayout.addComponent(toolbar);
+        }else{
+            content.setVisible(true);
+            showHide.setIcon(FontAwesome.CARET_DOWN);
+
+            panelLayout.addComponent(toolbar);
+            panelLayout.addComponent(content);
+
+            panelLayout.setExpandRatio(toolbar, 1f);
+            panelLayout.setExpandRatio(content, 15f);
         }
     }
 }

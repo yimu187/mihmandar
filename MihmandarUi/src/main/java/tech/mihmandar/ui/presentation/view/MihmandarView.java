@@ -13,6 +13,8 @@ import com.vaadin.ui.themes.ValoTheme;
 import org.vaadin.aceeditor.AceEditor;
 import org.vaadin.aceeditor.AceMode;
 import org.vaadin.aceeditor.AceTheme;
+import org.vaadin.aceeditor.client.AceMarker;
+import org.vaadin.aceeditor.client.AceRange;
 import tech.mihmandar.core.common.enums.EnumSoftwareLanguages;
 import tech.mihmandar.ui.presentation.common.MihPanel;
 import tech.mihmandar.ui.presentation.common.MihmandarApplication;
@@ -20,11 +22,9 @@ import tech.mihmandar.ui.presentation.component.HeaderComponent;
 import tech.mihmandar.ui.presentation.event.MihmandarEvent;
 import tech.mihmandar.ui.presentation.util.UiUtil;
 import tech.mihmandar.ui.presentation.window.MihmandarAddProcessWindow;
-import tech.mihmandar.utility.compiler.JavaCompilerUtil;
-import tech.mihmandar.utility.dto.CompileResultDto;
 
 @SuppressWarnings("serial")
-public final class MihmandarView extends Panel implements View{
+public final class MihmandarView extends CustomComponent implements View{
 
     private HorizontalLayout content;
     private VerticalLayout contentV;
@@ -32,6 +32,7 @@ public final class MihmandarView extends Panel implements View{
     private HeaderComponent headerComponent;
     private AceEditor aceEditor;
     private Label description;
+    private MihPanel panelEditor;
 
     public MihmandarView() {
         setSizeFull();
@@ -39,7 +40,7 @@ public final class MihmandarView extends Panel implements View{
 
         mainLayout = new VerticalLayout();
         mainLayout.setSizeFull();
-        setContent(mainLayout);
+        setCompositionRoot(mainLayout);
         Responsive.makeResponsive(mainLayout);
         headerComponent = new HeaderComponent();
 
@@ -51,7 +52,6 @@ public final class MihmandarView extends Panel implements View{
         addNewTraining.addClickListener(new Button.ClickListener() {
             @Override
             public void buttonClick(final Button.ClickEvent event) {
-
                 addWindow();
             }
         });
@@ -59,8 +59,7 @@ public final class MihmandarView extends Panel implements View{
         headerComponent.addComponentToTools(addNewTraining);
         mainLayout.addComponent(headerComponent);
 
-        int browserWindowWidth = MihmandarApplication.get().getPage().getBrowserWindowWidth();
-        buildContentByWidth(browserWindowWidth);
+        buildContentByWidth();
 
         // All the open sub-windows should be closed whenever the root layout
         // gets clicked.
@@ -70,6 +69,8 @@ public final class MihmandarView extends Panel implements View{
                 MihmandarApplication.get().getMihmandarEventbus().post(new MihmandarEvent.CloseOpenWindowsEvent());
             }
         });
+
+
     }
 
     private void addWindow() {
@@ -77,9 +78,11 @@ public final class MihmandarView extends Panel implements View{
         MihmandarApplication.get().addWindow(window);
     }
 
-    private void buildContentByWidth(int browserWindowWidth) {
+    private void buildContentByWidth() {
+        int browserWindowWidth = MihmandarApplication.get().getPage().getBrowserWindowWidth();
+
         mainLayout.removeAllComponents();
-        if(browserWindowWidth >= 700){
+        if(browserWindowWidth >= 900){
             mainLayout.addComponent(headerComponent);
             content = new HorizontalLayout();
             content = (HorizontalLayout) buildContent(content);
@@ -88,12 +91,11 @@ public final class MihmandarView extends Panel implements View{
             mainLayout.setExpandRatio(content, 15);
         }else{
             mainLayout.removeAllComponents();
-            mainLayout.addComponent(headerComponent);
             contentV = new VerticalLayout();
             contentV = (VerticalLayout) buildContent(contentV);
             mainLayout.addComponent(contentV);
             mainLayout.setExpandRatio(headerComponent, 1);
-            mainLayout.setExpandRatio(contentV, 15);
+            mainLayout.setExpandRatio(contentV, 1);
 
         }
     }
@@ -115,7 +117,10 @@ public final class MihmandarView extends Panel implements View{
         notesPanel.addStyleName("notes");
         notesPanel.addComponent(description);
         notesPanel.setHeight(100, Unit.PERCENTAGE);
-        content.addComponent(notesPanel);
+        VerticalLayout notesVerticalLayout = new VerticalLayout();
+        notesVerticalLayout.setSizeFull();
+        notesVerticalLayout.addComponent(notesPanel);
+        content.addComponent(notesVerticalLayout);
 
         aceEditor = new AceEditor();
         aceEditor.setHeight(100, Unit.PERCENTAGE);
@@ -123,20 +128,32 @@ public final class MihmandarView extends Panel implements View{
         aceEditor.setMode(aceMode);
         aceEditor.setSizeFull();
         aceEditor.setTheme(AceTheme.terminal);
-        MihPanel panelEditor = new MihPanel("Editör");
+        aceEditor.setHighlightActiveLine(true);
+        aceEditor.setHighlightSelectedWord(true);
+        EnumSoftwareLanguages language = MihmandarApplication.get().getLanguage();
+        language = language != null ? language : EnumSoftwareLanguages.JAVA;
+        panelEditor = new MihPanel("Editör(" + language.toString() + ")");
         panelEditor.addStyleName("editor");
         panelEditor.setHeight(100, Unit.PERCENTAGE);
+
+        VerticalLayout editorVerticalLayout = new VerticalLayout();
+        editorVerticalLayout.setSizeFull();
+        editorVerticalLayout.addComponent(panelEditor);
+        content.addComponent(editorVerticalLayout);
+
         panelEditor.addComponent(aceEditor);
         panelEditor.addMenuToHeader("Derle", FontAwesome.PAINT_BRUSH, new MenuBar.Command() {
             @Override
             public void menuSelected(MenuBar.MenuItem selectedItem) {
                 String value = aceEditor.getValue();
-                UiUtil.doCompile(value);
+                EnumSoftwareLanguages softLanguage = MihmandarApplication.get().getLanguage();
+                UiUtil.doCompile(value, softLanguage);
+                aceEditor.addMarker(new AceRange(9,1,9,5), "ace_highlight-marker", AceMarker.Type.line,  true, AceMarker.OnTextChange.ADJUST);
             }
         });
-        content.addComponent(panelEditor);
-        content.setExpandRatio(notesPanel, 1f);
-        content.setExpandRatio(panelEditor, 1f);
+
+        content.setExpandRatio(notesVerticalLayout, 1f);
+        content.setExpandRatio(editorVerticalLayout, 1f);
 
         return content;
     }
@@ -147,17 +164,20 @@ public final class MihmandarView extends Panel implements View{
 
     @Subscribe
     public void resize(final MihmandarEvent.BrowserResizeEvent event) {
-        int width = event.getWidth();
-        buildContentByWidth(width);
+        buildContentByWidth();
+        boolean headerComVisible = event.getHeight() > 900;
+        headerComponent.setVisible(headerComVisible);
     }
 
     @Subscribe
     public void softwareLanguageChanged(final MihmandarEvent.SoftwareLanguageChagedEvent event) {
         EnumSoftwareLanguages softwareLanguage = event.getSoftwareLanguage();
+        panelEditor.setCaption("Editör(" + softwareLanguage.toString() + ")");
         switch (softwareLanguage){
             case Python:{
                 description.setValue("<strong>Test derlemesi için aşağıdaki kodu  yan taraftaki editörü kullanabilirsiniz:<br> &nbsp print(\"Hello World.\") <strong>");
                 aceEditor.setMode(AceMode.python);
+
                 break;
             }
             case JAVA:

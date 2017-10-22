@@ -1,11 +1,16 @@
+@import "../valo/valo";
 @import "addons.scss";
 @import "dashboard";
+@import "/fonts/fonts.scss";
 
 
 .mytheme {
   // Output the actual theme selectors
+  @include valo;
   @include addons;
   @include dashboard;
+  @include fonts;
+
 
   .full {
     width: 100%;
@@ -20,12 +25,14 @@
     overflow: auto;
   }
 
+
+
   .panel-toolbar{
     background: cornsilk;
   }
 
   .panel-toolbar[width-range~="0-900px"] {
-    font-size: 10px;
+    font-size: 8px;
   }
 
   .panel-toolbar[width-range~="901px-"] {
@@ -71,8 +78,19 @@
     .m-view-content[width-range~="500px-"] {
       .editor {width: 50%}
     }
-
   }
+
+  &.v-app, &.v-app-loading {
+    font: 300 15px/1.55 OpenSansRegular;
+    color: #464646;
+    background-color: #fafafa;
+    cursor: default;
+  }
+
+  .v-accordion-item-caption {
+    background-color: azure;
+  }
+
 }
 
 

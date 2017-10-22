@@ -30,6 +30,7 @@ import tech.mihmandar.ui.presentation.event.MihmandarEvent;
 import tech.mihmandar.ui.presentation.util.UiUtil;
 import tech.mihmandar.ui.presentation.view.ViewType;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -53,12 +54,15 @@ public class MihmandarTrainingAddComponent extends CustomComponent {
     private TextArea description;
     private OptionGroup accessType;
     private AceEditor aceEditor;
-    private HorizontalLayout content;
-    private VerticalLayout contentV;
     private TreeTable treeTable;
     private HierarchicalContainer container;
     private Long trainingId;
     private RichTextArea notes;
+
+    private TabSheet tabSheet;
+    private TabSheet.Tab adimlarTab;
+    private TabSheet.Tab yapilacaklarTab;
+    private TabSheet.Tab editorTab;
 
     private EnumProcessType processType;
 
@@ -68,26 +72,62 @@ public class MihmandarTrainingAddComponent extends CustomComponent {
 
         mainLayout = new VerticalLayout();
         mainLayout.setSpacing(true);
-        mainLayout.setSizeFull();
 
         setSizeFull();
         MihmandarApplication.get().getMihmandarEventbus().register(this);
 
         Responsive.makeResponsive(mainLayout);
 
-        int browserWindowWidth = MihmandarApplication.get().getPage().getBrowserWindowWidth();
-        buildContentByWidth(browserWindowWidth);
+        headerComponent = new HeaderComponent();
+        headerComponent.setSizeFull();
+        headerComponent.setLanguageComboEnabled(false);
+        mainLayout.addComponent(headerComponent);
+
+        MihPanel fieldsPanel = createFieldsPanel(processType);
+        mainLayout.addComponent(fieldsPanel);
+
+        tabSheet = new TabSheet();
+        tabSheet.setWidth(100, Unit.PERCENTAGE);
+        tabSheet.setHeight(800, Unit.PIXELS);
+        tabSheet.addSelectedTabChangeListener(new TabSheet.SelectedTabChangeListener() {
+            @Override
+            public void selectedTabChange(TabSheet.SelectedTabChangeEvent event) {
+                Component selectedTab = tabSheet.getSelectedTab();
+                if(selectedTab != null && adimlarTab != null && !selectedTab.equals(adimlarTab.getComponent())){
+                    Container.Hierarchical containerDataSource = treeTable.getContainerDataSource();
+                    Collection<?> itemIds = containerDataSource.getItemIds();
+                    TrainingStep selectedStep = null;
+                    for (Object itemId : itemIds) {
+                        CheckBox cb = (CheckBox) containerDataSource.getContainerProperty(itemId, "cb").getValue();
+                        Boolean value = cb.getValue();
+                        if(Boolean.TRUE.equals(value)){
+                            selectedStep = (TrainingStep)itemId;
+                        }
+                    }
+                    if(selectedStep == null){
+                        tabSheet.setSelectedTab(adimlarTab);
+                        UiUtil.displayNoSelectedRecordWarning();
+                    }
+                }
+            }
+        });
+        mainLayout.addComponent(tabSheet);
+
+        MihPanel treeTablePanel = createTreeTablePanel();
+        adimlarTab = tabSheet.addTab(treeTablePanel, "Adım Sırası", FontAwesome.STEP_FORWARD);
+
+        MihPanel descPanel = createDescPanel();
+        yapilacaklarTab = tabSheet.addTab(descPanel, "Yapılacakların Tarifi", FontAwesome.INFO);
+
+        MihPanel editorPanel = createEditorPanel();
+        editorTab = tabSheet.addTab(editorPanel, "Editör", FontAwesome.PAINT_BRUSH);
 
         setCompositionRoot(mainLayout);
     }
 
-    private void buildContentByWidth(int browserWindowWidth) {
-
-        headerComponent = new HeaderComponent();
-        headerComponent.setSizeFull();
-        headerComponent.setLanguageComboEnabled(false);
-
-        MihPanel fieldsPanel = new MihPanel("Detaylar");
+    private MihPanel createFieldsPanel(EnumProcessType processType) {
+        MihPanel fieldsPanel = new MihPanel(processType.toString() + " Detayları");
+        fieldsPanel.setCollapsed(true);
         fieldsPanel.addMenuToHeader("Kaydet", FontAwesome.SAVE, new MenuBar.Command() {
             @Override
             public void menuSelected(MenuBar.MenuItem selectedItem) {
@@ -113,36 +153,36 @@ public class MihmandarTrainingAddComponent extends CustomComponent {
         });
         fieldsPanel.setSizeFull();
 
-        mainLayout.removeAllComponents();
-        if(browserWindowWidth >= 700){
-            mainLayout.addComponent(headerComponent);
+        trainingFieldsLayout = new VerticalLayout();
+        trainingFieldsLayout.setSpacing(true);
+        trainingFieldsLayout.setSizeFull();
+        fieldsPanel.addComponent(trainingFieldsLayout);
 
-            generateTrainingFieldsLayout(false);
-            fieldsPanel.addComponent(trainingFieldsLayout);
-            mainLayout.addComponent(fieldsPanel);
+        accessType = new OptionGroup();
+        accessType.setImmediate(true);
+        accessType.addItems(EnumAccessType.values());
+        accessType.setDescription("Erişim Türü");
+        accessType.addStyleName("horizontal");
+        trainingFieldsLayout.addComponent(accessType);
 
-            content = new HorizontalLayout();
-            content = (HorizontalLayout) buildContent(content);
-            mainLayout.addComponent(content);
+        name = new TextField();
+        name.setInputPrompt("İsim giriniz...");
+        name.setImmediate(true);
+        name.setSizeFull();
+        trainingFieldsLayout.addComponent(name);
 
-            mainLayout.setExpandRatio(headerComponent, 1);
-            mainLayout.setExpandRatio(fieldsPanel, 3f);
-            mainLayout.setExpandRatio(content, 10f);
-        }else{
-            mainLayout.addComponent(headerComponent);
+        description = new TextArea();
+        description.setCaption("Açıklama");
+        description.setImmediate(true);
+        description.setInputPrompt("Açıklama");
+        description.setSizeFull();
+        trainingFieldsLayout.addComponent(description);
 
-            generateTrainingFieldsLayout(true);
-            fieldsPanel.addComponent(trainingFieldsLayout);
-            mainLayout.addComponent(fieldsPanel);
+        trainingFieldsLayout.setExpandRatio(description, 5f);
+        trainingFieldsLayout.setExpandRatio(name, 2f);
+        trainingFieldsLayout.setExpandRatio(accessType, 1f);
 
-            contentV = new VerticalLayout();
-            contentV = (VerticalLayout) buildContent(contentV);
-            mainLayout.addComponent(contentV);
-
-            mainLayout.setExpandRatio(headerComponent, 1);
-            mainLayout.setExpandRatio(fieldsPanel, 3f);
-            mainLayout.setExpandRatio(contentV, 10);
-        }
+        return fieldsPanel;
     }
 
     private void generateTrainingFieldsLayout(boolean smallSize) {
@@ -192,10 +232,64 @@ public class MihmandarTrainingAddComponent extends CustomComponent {
         trainingFieldsLayout.addComponent(description);
     }
 
-    private AbstractOrderedLayout buildContent(AbstractOrderedLayout content) {
-        content.setSizeFull();
-        content.setSpacing(true);
+    private MihPanel createEditorPanel() {
+        aceEditor = new AceEditor();
+        AceMode aceMode = AceMode.java;
+        aceEditor.setMode(aceMode);
+        aceEditor.setSizeFull();
+        aceEditor.setTheme(AceTheme.terminal);
+        MihPanel panelEditor = new MihPanel("Editör");
+        panelEditor.setHeight(100, Unit.PERCENTAGE);
+        panelEditor.addStyleName("editor");
+        panelEditor.addComponent(aceEditor);
+        panelEditor.addMenuToHeader("Derle", FontAwesome.PAINT_BRUSH, new MenuBar.Command() {
+            @Override
+            public void menuSelected(MenuBar.MenuItem selectedItem) {
+                String value = aceEditor.getValue();
+                EnumSoftwareLanguages softLanguage = MihmandarApplication.get().getLanguage();
+                UiUtil.doCompile(value, softLanguage);
+            }
+        });
+        panelEditor.addMenuToHeader("Kaydet", FontAwesome.SAVE, new MenuBar.Command() {
+            @Override
+            public void menuSelected(MenuBar.MenuItem selectedItem) {
+                String value = aceEditor.getValue();
+                TrainingStep trainingStep = getTrainingStep();
+                if(trainingStep != null){
+                    TrainingStep step = trainingStepService.findById(trainingStep.getId());
+                    step.setInitialCode(value);
+                    trainingStepService.save(step);
+                    UiUtil.displaySuccessNotification();
+                }
+            }
+        });
+        return panelEditor;
+    }
 
+    private MihPanel createDescPanel() {
+        MihPanel descPanel = new MihPanel("Yapılacakların Tarifi");
+        descPanel.setHeight(100, Unit.PERCENTAGE);
+        notes = new RichTextArea();
+        notes.setValue("");
+        notes.setSizeFull();
+        descPanel.addComponent(notes);
+        descPanel.addMenuToHeader("Kaydet", FontAwesome.SAVE, new MenuBar.Command() {
+            @Override
+            public void menuSelected(MenuBar.MenuItem selectedItem) {
+                String value = notes.getValue();
+                TrainingStep trainingStep = getTrainingStep();
+                if(trainingStep != null){
+                    TrainingStep step = trainingStepService.findById(trainingStep.getId());
+                    step.setCodeExplaination(value);
+                    trainingStepService.save(step);
+                    UiUtil.displaySuccessNotification();
+                }
+            }
+        });
+        return descPanel;
+    }
+
+    private MihPanel createTreeTablePanel() {
         MihPanel treeTablePanel = new MihPanel("Adımlar");
         treeTable = new TreeTable();
 
@@ -302,66 +396,7 @@ public class MihmandarTrainingAddComponent extends CustomComponent {
 
             }
         });
-        content.addComponent(treeTablePanel);
-
-        MihPanel descPanel = new MihPanel("Yapılacakların Tarifi");
-        descPanel.setHeight(100, Unit.PERCENTAGE);
-        notes = new RichTextArea();
-        notes.setValue("");
-        notes.setSizeFull();
-        descPanel.addComponent(notes);
-        descPanel.addMenuToHeader("Kaydet", FontAwesome.SAVE, new MenuBar.Command() {
-            @Override
-            public void menuSelected(MenuBar.MenuItem selectedItem) {
-                String value = notes.getValue();
-                TrainingStep trainingStep = getTrainingStep();
-                if(trainingStep != null){
-                    TrainingStep step = trainingStepService.findById(trainingStep.getId());
-                    step.setCodeExplaination(value);
-                    trainingStepService.save(step);
-                    UiUtil.displaySuccessNotification();
-                }
-            }
-        });
-        content.addComponent(descPanel);
-
-
-        aceEditor = new AceEditor();
-        AceMode aceMode = AceMode.java;
-        aceEditor.setMode(aceMode);
-        aceEditor.setSizeFull();
-        aceEditor.setTheme(AceTheme.terminal);
-        MihPanel panelEditor = new MihPanel("Editör");
-        panelEditor.setHeight(100, Unit.PERCENTAGE);
-        panelEditor.addStyleName("editor");
-        panelEditor.addComponent(aceEditor);
-        panelEditor.addMenuToHeader("Derle", FontAwesome.PAINT_BRUSH, new MenuBar.Command() {
-            @Override
-            public void menuSelected(MenuBar.MenuItem selectedItem) {
-                String value = aceEditor.getValue();
-                UiUtil.doCompile(value);
-            }
-        });
-        panelEditor.addMenuToHeader("Kaydet", FontAwesome.SAVE, new MenuBar.Command() {
-            @Override
-            public void menuSelected(MenuBar.MenuItem selectedItem) {
-                String value = aceEditor.getValue();
-                TrainingStep trainingStep = getTrainingStep();
-                if(trainingStep != null){
-                    TrainingStep step = trainingStepService.findById(trainingStep.getId());
-                    step.setInitialCode(value);
-                    trainingStepService.save(step);
-                    UiUtil.displaySuccessNotification();
-                }
-            }
-        });
-        content.addComponent(panelEditor);
-
-        content.setExpandRatio(descPanel, 2f);
-        content.setExpandRatio(panelEditor, 2f);
-        content.setExpandRatio(treeTablePanel, 1f);
-
-        return content;
+        return treeTablePanel;
     }
 
     private TrainingStep getTrainingStep() {
@@ -440,8 +475,6 @@ public class MihmandarTrainingAddComponent extends CustomComponent {
 
     @Subscribe
     public void resize(final MihmandarEvent.BrowserResizeEvent event) {
-        int width = event.getWidth();
-        buildContentByWidth(width);
     }
 
     public void fillWithTraingId(String trainingIdParam) {

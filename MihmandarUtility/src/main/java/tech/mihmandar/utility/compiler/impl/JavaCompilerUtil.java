@@ -1,7 +1,8 @@
-package tech.mihmandar.utility.compiler;
+package tech.mihmandar.utility.compiler.impl;
 
 import org.apache.commons.io.FileUtils;
 import org.springframework.util.StringUtils;
+import tech.mihmandar.utility.compiler.ICompile;
 import tech.mihmandar.utility.dto.CompileResultDto;
 
 import javax.tools.*;
@@ -15,7 +16,7 @@ import java.util.Random;
 /**
  * Created by Murat on 10/7/2017.
  */
-public class JavaCompilerUtil {
+public class JavaCompilerUtil implements ICompile {
 
     public static CompileResultDto compile(String sourceCode){
         CompileResultDto resultDto = new CompileResultDto();

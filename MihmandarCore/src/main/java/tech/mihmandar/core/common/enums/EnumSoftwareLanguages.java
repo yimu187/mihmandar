@@ -6,7 +6,7 @@ package tech.mihmandar.core.common.enums;
 public enum EnumSoftwareLanguages {
 
     JAVA("Java"),
-    Python("Pyhon");
+    Python("Python");
 
     private String name;
 

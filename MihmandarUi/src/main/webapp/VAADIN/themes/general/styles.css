@@ -12944,3 +12944,9 @@ div.v-layout.v-horizontal.v-widget {
 .mytheme .indianRed {
 	background-color: #CD5C5C;
 }
+
+.mytheme .ace_highlight-marker {
+	position: absolute;
+	background: #abc;
+	z-index: 1000;
+}

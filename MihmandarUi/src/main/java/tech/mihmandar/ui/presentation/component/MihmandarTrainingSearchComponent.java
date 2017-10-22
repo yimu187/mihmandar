@@ -150,7 +150,7 @@ public class MihmandarTrainingSearchComponent extends CustomComponent {
         panelLayout.addComponent(descLabel);
 
         int browserWindowWidth = MihmandarApplication.get().getPage().getBrowserWindowWidth();
-        if(browserWindowWidth > 800){
+        if(browserWindowWidth > 900){
             name.addStyleName(ValoTheme.LABEL_H1);
             descLabel.addStyleName(ValoTheme.LABEL_H2);
         }else{
