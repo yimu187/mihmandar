@@ -142,13 +142,23 @@ public final class MihmandarView extends CustomComponent implements View{
         content.addComponent(editorVerticalLayout);
 
         panelEditor.addComponent(aceEditor);
+
         panelEditor.addMenuToHeader("Derle", FontAwesome.PAINT_BRUSH, new MenuBar.Command() {
             @Override
             public void menuSelected(MenuBar.MenuItem selectedItem) {
                 String value = aceEditor.getValue();
                 EnumSoftwareLanguages softLanguage = MihmandarApplication.get().getLanguage();
-                UiUtil.doCompile(value, softLanguage);
+                UiUtil.compile(value, softLanguage);
                 aceEditor.addMarker(new AceRange(9,1,9,5), "ace_highlight-marker", AceMarker.Type.line,  true, AceMarker.OnTextChange.ADJUST);
+            }
+        });
+
+        panelEditor.addMenuToHeader("Çalıştır", FontAwesome.LONG_ARROW_LEFT, new MenuBar.Command() {
+            @Override
+            public void menuSelected(MenuBar.MenuItem selectedItem) {
+                String value = aceEditor.getValue();
+                EnumSoftwareLanguages softLanguage = MihmandarApplication.get().getLanguage();
+                UiUtil.run(value, softLanguage);
             }
         });
 

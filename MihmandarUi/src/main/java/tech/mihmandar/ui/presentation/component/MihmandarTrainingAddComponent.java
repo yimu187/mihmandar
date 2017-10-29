@@ -247,7 +247,7 @@ public class MihmandarTrainingAddComponent extends CustomComponent {
             public void menuSelected(MenuBar.MenuItem selectedItem) {
                 String value = aceEditor.getValue();
                 EnumSoftwareLanguages softLanguage = MihmandarApplication.get().getLanguage();
-                UiUtil.doCompile(value, softLanguage);
+                UiUtil.compile(value, softLanguage);
             }
         });
         panelEditor.addMenuToHeader("Kaydet", FontAwesome.SAVE, new MenuBar.Command() {
